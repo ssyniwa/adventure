@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import pandas as pd
-
+import os
 # ページ設定
 st.set_page_config(page_title="Streamlit Roguelike", layout="wide")
 
