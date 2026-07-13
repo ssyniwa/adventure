@@ -8,25 +8,53 @@ st.set_page_config(page_title="Streamlit Roguelike", layout="wide")
 # --- 1. データ定義 ---
 CHARACTER_POOL = {
     "ブロッカー": [
-        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー"},
-        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー"}
+        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー", "image": "assets/altania.png"},
+        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー", "image": "assets/golaias.png"}
     ],
     "アタッカー": [
-        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー"},
-        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー"},
-        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー"},
-        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー"},
-        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー"},
-        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー"}
+        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー", "image": "assets/elsa.png"},
+        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー", "image": "assets/reizi.png"},
+        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー", "image": "assets/silf.png"},
+        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー", "image": "assets/vald.png"},
+        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー", "image": "assets/musasi.png"},
+        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー", "image": "assets/jeek.png"}
     ],
     "ヒーラー": [
-        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20},
-        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15}
+        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20, "image": "assets/sesiria.png"},
+        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15, "image": "assets/alia.png"}
     ]
 }
-
+# エリアごとの敵プール (通常モブとボスをエリア別に定義)
+ENEMY_POOL = {
+    1: {
+        "normal": [
+            {"name": "ゴブリン", "hp": 40, "atk": 12, "df": 4, "image": "assets/goblin.png"},
+            {"name": "大コウモリ", "hp": 30, "atk": 14, "df": 2, "image": "assets/bat.png"}
+        ],
+        "boss": {"name": "ゴブリンキング", "hp": 300, "atk": 25, "df": 12, "image": "assets/goblin_king.png"}
+    },
+    2: { ... }, # エリア2〜5も同様にパラメータと画像パスを設定
+}
 EVENT_TYPES = ["戦闘", "装備獲得", "アイテム獲得", "回復", "スキル獲得", "特殊遭遇"]
-
+def display_character_card(cell, is_ally=True):
+    # 画像が存在すれば表示、なければダミーの箱を表示
+    if os.path.exists(cell["image"]):
+        st.image(cell["image"], use_container_width=True)
+    else:
+        placeholder_color = "🔵" if is_ally else "🔴"
+        st.markdown(f"<div style='text-align:center;font-size:40px;background:#eee;padding:10px;border-radius:5px;'>{placeholder_color}</div>", unsafe_allow_html=True)
+    
+    # キャラクター名とHPバーの表示
+    st.caption(f"**{cell['name']}**")
+    st.progress(max(0.0, min(1.0, cell["hp"] / cell["max_hp"])))
+    
+    if is_ally:
+        st.markdown(f"<small>HP: {max(0, cell['hp'])}/{cell['max_hp']}</small>", unsafe_allow_html=True)
+    else:
+        if cell["hp"] > 0:
+            st.markdown(f"<small style='color:red;'>HP: {cell['hp']}/{cell['max_hp']}</small>", unsafe_allow_html=True)
+        else:
+            st.markdown("<div style='text-align:center;color:gray;padding-top:20px;'>💀 撃破</div>", unsafe_allow_html=True)
 # --- 2. 状態の初期化 ---
 if "phase" not in st.session_state:
     st.session_state.phase = "CHARACTER_SELECT"  # CHARACTER_SELECT, EXPLORE, BATTLE, GAME_OVER, CLEAR
@@ -213,6 +241,7 @@ elif st.session_state.phase == "BATTLE":
     # 3x3 グリッドの可視化
     col_left, col_right = st.columns(2)
     
+    # 3x3グリッド描画部（味方陣営）
     with col_left:
         st.subheader("🔵 味方陣営 (左:後衛 / 右:前衛)")
         for r in range(3):
@@ -221,9 +250,9 @@ elif st.session_state.phase == "BATTLE":
                 cell = st.session_state.grid_ally[f"{r},{c}"]
                 with cols[c]:
                     if cell:
-                        st.info(f"**{cell['name']}**\n\nHP: {cell['hp']}/{cell['max_hp']}")
+                        display_character_card(cell, is_ally=True) # 自作関数でスマートに表示
                     else:
-                        st.text_area("", "（空）", height=80, disabled=True, key=f"a_{r}_{c}")
+                        st.markdown("<div style='text-align:center;color:#ccc;border:1px dashed #ccc;padding:30px 0;border-radius:5px;'>（空）</div>", unsafe_allow_html=True)
 
     with col_right:
         st.subheader("🔴 敵陣営 (左:前衛 / 右:後衛)")
@@ -233,13 +262,10 @@ elif st.session_state.phase == "BATTLE":
                 cell = st.session_state.grid_enemy[f"{r},{c}"]
                 with cols[c]:
                     if cell:
-                        if cell['hp'] > 0:
-                            st.error(f"**{cell['name']}**\n\nHP: {cell['hp']}")
-                        else:
-                            st.text_area("", "💀 撃破", height=80, disabled=True, key=f"e_d_{r}_{c}")
+                        display_character_card(cell, is_ally=False) # 自作関数でスマートに表示
                     else:
                         st.text_area("", "（空）", height=80, disabled=True, key=f"e_{r}_{c}")
-
+                        st.markdown("<div style='text-align:center;color:#ccc;border:1px dashed #ccc;padding:30px 0;border-radius:5px;'>（空）</div>", unsafe_allow_html=True)
     st.divider()
     
     # バトル進行ボタン
