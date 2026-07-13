@@ -114,16 +114,32 @@ def generate_choices():
     return random.sample(EVENT_TYPES, 3)
 
 def init_enemy(is_boss=False):
+    """
+    敵の初期配置を行う関数。
+    ボス戦の場合は、ボス専用のデータをロードし、召喚可能なノーマル敵リストも保持する。
+    """
     st.session_state.grid_enemy = {f"{r},{c}": None for r in range(3) for c in range(3)}
-    num_enemies = 1 if is_boss else random.randint(1, 3)
+    area_pool = ENEMY_POOL[st.session_state.area]
     
-    for _ in range(num_enemies):
-        r, c = random.randint(0, 2), random.randint(0, 2)
-        if is_boss:
-            st.session_state.grid_enemy[f"{r},{c}"] = {"name": f"エリア{st.session_state.area}ボス", "hp": 300 + st.session_state.area*100, "atk": 25, "df": 15, "max_hp": 300}
-            break
-        else:
-            st.session_state.grid_enemy[f"{r},{c}"] = {"name": f"ゴブリン", "hp": 40 + st.session_state.area*10, "atk": 12, "df": 5, "max_hp": 50}
+    if is_boss:
+        # ボスデータのコピーを作成
+        boss_data = area_pool["boss"].copy()
+        boss_data["max_hp"] = boss_data["hp"]
+        # ボスは中央前衛 (1, 1) に配置
+        st.session_state.grid_enemy["1,1"] = boss_data
+        # 召喚用にノーマル敵のデータを保持しておく
+        st.session_state.summonable_enemies = area_pool["normal"]
+    else:
+        # 通常モンスターをランダムに1〜3体配置
+        num_enemies = random.randint(1, 3)
+        available_slots = [f"{r},{c}" for r in range(3) for c in range(3)]
+        chosen_slots = random.sample(available_slots, num_enemies)
+        
+        for slot in chosen_slots:
+            enemy_template = random.choice(area_pool["normal"])
+            enemy_data = enemy_template.copy()
+            enemy_data["max_hp"] = enemy_data["hp"]
+            st.session_state.grid_enemy[slot] = enemy_data
 
 def run_battle_turn():
     # 簡易自動戦闘シミュレーションロジック
@@ -141,7 +157,16 @@ def run_battle_turn():
                 log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
                 if enemy["hp"] <= 0:
                     log.append(f"💥 {enemy['name']} を倒した！")
-    
+    if st.session_state.current_enemy_boss:
+        # 空いているマスを探す
+        empty_slots = [k for k, v in st.session_state.grid_enemy.items() if v is None]
+        # 確率で召喚（空きマスがあり、かつボスが生きていれば）
+        if empty_slots and random.random() < 0.3: # 30%の確率で召喚
+            target_slot = random.choice(empty_slots)
+            summon = random.choice(st.session_state.summonable_enemies).copy()
+            summon["max_hp"] = summon["hp"]
+            st.session_state.grid_enemy[target_slot] = summon
+            st.session_state.battle_log.append(f"👹 ボスが新たな敵を呼び出した！")
     # 敵の攻撃
     for pos, enemy in st.session_state.grid_enemy.items():
         if enemy and enemy["hp"] > 0:
