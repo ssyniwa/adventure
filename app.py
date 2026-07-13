@@ -78,7 +78,7 @@ ENEMY_POOL = {
     }
 }
 EVENT_TYPES = ["戦闘", "装備獲得", "アイテム獲得", "回復", "スキル獲得", "特殊遭遇"]
-def display_character_card(cell, is_ally=True):
+def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
     if os.path.exists(cell["image"]):
         st.image(cell["image"], use_container_width=True)
