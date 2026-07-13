@@ -28,12 +28,54 @@ CHARACTER_POOL = {
 ENEMY_POOL = {
     1: {
         "normal": [
-            {"name": "ゴブリン", "hp": 40, "atk": 12, "df": 4, "image": "assets/goblin.png"},
-            {"name": "大コウモリ", "hp": 30, "atk": 14, "df": 2, "image": "assets/bat.png"}
+            {"name": "ゴブリン", "hp": 45, "atk": 12, "df": 5, "image": "assets/goblin.png"},
+            {"name": "大コウモリ", "hp": 30, "atk": 15, "df": 2, "image": "assets/bat.png"},
+            {"name": "マンドレイク", "hp": 40, "atk": 10, "df": 4, "image": "assets/mandrake.png"},
+            {"name": "フォレストウルフ", "hp": 55, "atk": 16, "df": 6, "image": "assets/wolf.png"},
+            {"name": "グリーンスライム", "hp": 60, "atk": 8, "df": 12, "image": "assets/slime.png"}
         ],
         "boss": {"name": "ゴブリンキング", "hp": 300, "atk": 25, "df": 12, "image": "assets/goblin_king.png"}
     },
-    2: { ... }, # エリア2〜5も同様にパラメータと画像パスを設定
+    2: {
+        "normal": [
+            {"name": "オーク", "hp": 45, "atk": 12, "df": 5, "image": "assets/orc.png"},
+            {"name": "スケルトンソルジャー", "hp": 30, "atk": 15, "df": 2, "image": "assets/skeleton.png"},
+            {"name": "迷い子のゴースト", "hp": 40, "atk": 10, "df": 4, "image": "assets/ghost.png"},
+            {"name": "巨大毒サソリ", "hp": 55, "atk": 16, "df": 6, "image": "assets/scorpion.png"},
+            {"name": "マインミミック", "hp": 60, "atk": 8, "df": 12, "image": "assets/mimic.png"}
+        ],
+        "boss": {"name": "影の支配者リッチ", "hp": 300, "atk": 25, "df": 12, "image": "assets/lich_boss.png"}
+    }, # エリア2〜5も同様にパラメータと画像パスを設定
+    3: {
+        "normal": [
+            {"name": "マグモスライム", "hp": 45, "atk": 12, "df": 5, "image": "assets/magma_slime.png"},
+            {"name": "ファイアバード", "hp": 30, "atk": 15, "df": 2, "image": "assets/fire_bird.png"},
+            {"name": "サラマンダー", "hp": 40, "atk": 10, "df": 4, "image": "assets/salamander.png"},
+            {"name": "ストーンゴーレム", "hp": 55, "atk": 16, "df": 6, "image": "assets/golem.png"},
+            {"name": "ラヴァインプ", "hp": 60, "atk": 8, "df": 12, "image": "assets/lava_imp.png"}
+        ],
+        "boss": {"name": "古代の重戦車", "hp": 300, "atk": 25, "df": 12, "image": "assets/stone_boss.png"}
+    }, 
+    4: {
+        "normal": [
+            {"name": "マーダーラプトル", "hp": 45, "atk": 12, "df": 5, "image": "assets/raptor.png"},
+            {"name": "アポカリプスウィスプ", "hp": 30, "atk": 15, "df": 2, "image": "assets/wisp.png"},
+            {"name": "ガーゴイル", "hp": 40, "atk": 10, "df": 4, "image": "assets/gargoyle.png"},
+            {"name": "テンタクルウォーター", "hp": 55, "atk": 16, "df": 6, "image": "assets/tentacle.png"},
+            {"name": "ミストシーフ", "hp": 60, "atk": 8, "df": 12, "image": "assets/thief.png"}
+        ],
+        "boss": {"name": "瀑布の妖姫セイレーン", "hp": 300, "atk": 25, "df": 12, "image": "assets/siren_boss.png"}
+    }, 
+    5: {
+        "normal": [
+            {"name": "ドラゴニュート", "hp": 45, "atk": 12, "df": 5, "image": "assetsdragoniut.png"},
+            {"name": "キマイラ", "hp": 30, "atk": 15, "df": 2, "image": "assets/chimera.png"},
+            {"name": "アークデーモン", "hp": 40, "atk": 10, "df": 4, "image": "assets/demon.png"},
+            {"name": "アーマードナイト", "hp": 55, "atk": 16, "df": 6, "image": "assets/armored_knight.png"},
+            {"name": "イビルアイ", "hp": 60, "atk": 8, "df": 12, "image": "assets/evil_eye.png"}
+        ],
+        "boss": {"name": "終焉の紅蓮竜", "hp": 300, "atk": 25, "df": 12, "image": "assets/dragon_boss.png"}
+    }
 }
 EVENT_TYPES = ["戦闘", "装備獲得", "アイテム獲得", "回復", "スキル獲得", "特殊遭遇"]
 def display_character_card(cell, is_ally=True):
