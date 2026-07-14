@@ -331,7 +331,7 @@ elif st.session_state.phase == "BATTLE":
                     if cell:
                         display_character_card(cell, is_ally=False) # 自作関数でスマートに表示
                     else:
-                        st.text_area("", "（空）", height=80, disabled=True, key=f"e_{r}_{c}")
+                        
                         st.markdown("<div style='text-align:center;color:#ccc;border:1px dashed #ccc;padding:30px 0;border-radius:5px;'>（空）</div>", unsafe_allow_html=True)
     st.divider()
     
