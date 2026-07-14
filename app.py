@@ -38,43 +38,43 @@ ENEMY_POOL = {
     },
     2: {
         "normal": [
-            {"name": "オーク", "hp": 45, "atk": 12, "df": 5, "image": "assets/orc.png"},
-            {"name": "スケルトンソルジャー", "hp": 30, "atk": 15, "df": 2, "image": "assets/skeleton.png"},
-            {"name": "迷い子のゴースト", "hp": 40, "atk": 10, "df": 4, "image": "assets/ghost.png"},
-            {"name": "巨大毒サソリ", "hp": 55, "atk": 16, "df": 6, "image": "assets/scorpion.png"},
-            {"name": "マインミミック", "hp": 60, "atk": 8, "df": 12, "image": "assets/mimic.png"}
+            {"name": "オーク", "hp": 70, "atk": 18, "df": 8, "image": "assets/orc.png"},
+            {"name": "スケルトンソルジャー", "hp": 60, "atk": 20, "df": 5, "image": "assets/skeleton.png"},
+            {"name": "迷い子のゴースト", "hp": 50, "atk": 15, "df": 3, "image": "assets/ghost.png"},
+            {"name": "巨大毒サソリ", "hp": 65, "atk": 16, "df": 7, "image": "assets/scorpion.png"},
+            {"name": "マインミミック", "hp": 80, "atk": 12, "df": 15, "image": "assets/mimic.png"}
         ],
-        "boss": {"name": "影の支配者リッチ", "hp": 300, "atk": 25, "df": 12, "image": "assets/lich_boss.png"}
+        "boss": {"name": "影の支配者リッチ", "hp": 500, "atk": 32, "df": 18, "image": "assets/lich_boss.png"}
     }, # エリア2〜5も同様にパラメータと画像パスを設定
     3: {
         "normal": [
-            {"name": "マグモスライム", "hp": 45, "atk": 12, "df": 5, "image": "assets/magma_slime.png"},
-            {"name": "ファイアバード", "hp": 30, "atk": 15, "df": 2, "image": "assets/fire_bird.png"},
-            {"name": "サラマンダー", "hp": 40, "atk": 10, "df": 4, "image": "assets/salamander.png"},
-            {"name": "ストーンゴーレム", "hp": 55, "atk": 16, "df": 6, "image": "assets/golem.png"},
-            {"name": "ラヴァインプ", "hp": 60, "atk": 8, "df": 12, "image": "assets/lava_imp.png"}
+            {"name": "マグモスライム", "hp": 100, "atk": 15, "df": 12, "image": "assets/magma_slime.png"},
+            {"name": "ファイアバード", "hp": 80, "atk": 25, "df": 6, "image": "assets/fire_bird.png"},
+            {"name": "サラマンダー", "hp": 90, "atk": 22, "df": 8, "image": "assets/salamander.png"},
+            {"name": "ストーンゴーレム", "hp": 120, "atk": 20, "df": 20, "image": "assets/golem.png"},
+            {"name": "ラヴァインプ", "hp": 70, "atk": 18, "df": 5, "image": "assets/lava_imp.png"}
         ],
-        "boss": {"name": "古代の重戦車", "hp": 300, "atk": 25, "df": 12, "image": "assets/stone_boss.png"}
+        "boss": {"name": "古代の重戦車", "hp": 700, "atk": 40, "df": 30, "image": "assets/stone_boss.png"}
     }, 
     4: {
         "normal": [
-            {"name": "マーダーラプトル", "hp": 45, "atk": 12, "df": 5, "image": "assets/raptor.png"},
-            {"name": "アポカリプスウィスプ", "hp": 30, "atk": 15, "df": 2, "image": "assets/wisp.png"},
-            {"name": "ガーゴイル", "hp": 40, "atk": 10, "df": 4, "image": "assets/gargoyle.png"},
-            {"name": "テンタクルウォーター", "hp": 55, "atk": 16, "df": 6, "image": "assets/tentacle.png"},
-            {"name": "ミストシーフ", "hp": 60, "atk": 8, "df": 12, "image": "assets/thief.png"}
+            {"name": "マーダーラプトル", "hp": 110, "atk": 30, "df": 10, "image": "assets/raptor.png"},
+            {"name": "アポカリプスウィスプ", "hp": 90, "atk": 35, "df": 5, "image": "assets/wisp.png"},
+            {"name": "ガーゴイル", "hp": 100, "atk": 28, "df": 12, "image": "assets/gargoyle.png"},
+            {"name": "テンタクルウォーター", "hp": 130, "atk": 22, "df": 15, "image": "assets/tentacle.png"},
+            {"name": "ミストシーフ", "hp": 95, "atk": 32, "df": 8, "image": "assets/thief.png"}
         ],
-        "boss": {"name": "瀑布の妖姫セイレーン", "hp": 300, "atk": 25, "df": 12, "image": "assets/siren_boss.png"}
+        "boss": {"name": "瀑布の妖姫セイレーン", "hp": 900, "atk": 50, "df": 22, "image": "assets/siren_boss.png"}
     }, 
     5: {
         "normal": [
-            {"name": "ドラゴニュート", "hp": 45, "atk": 12, "df": 5, "image": "assetsdragoniut.png"},
-            {"name": "キマイラ", "hp": 30, "atk": 15, "df": 2, "image": "assets/chimera.png"},
-            {"name": "アークデーモン", "hp": 40, "atk": 10, "df": 4, "image": "assets/demon.png"},
-            {"name": "アーマードナイト", "hp": 55, "atk": 16, "df": 6, "image": "assets/armored_knight.png"},
-            {"name": "イビルアイ", "hp": 60, "atk": 8, "df": 12, "image": "assets/evil_eye.png"}
+            {"name": "ドラゴニュート", "hp": 150, "atk": 40, "df": 18, "image": "assetsdragoniut.png"},
+            {"name": "キマイラ", "hp": 140, "atk": 38, "df": 15, "image": "assets/chimera.png"},
+            {"name": "アークデーモン", "hp": 120, "atk": 45, "df": 10, "image": "assets/demon.png"},
+            {"name": "アーマードナイト", "hp": 180, "atk": 30, "df": 25, "image": "assets/armored_knight.png"},
+            {"name": "イビルアイ", "hp": 110, "atk": 35, "df": 12, "image": "assets/evil_eye.png"}
         ],
-        "boss": {"name": "終焉の紅蓮竜", "hp": 300, "atk": 25, "df": 12, "image": "assets/dragon_boss.png"}
+        "boss": {"name": "終焉の紅蓮竜", "hp": 1200, "atk": 65, "df": 35, "image": "assets/dragon_boss.png"}
     }
 }
 EVENT_TYPES = ["戦闘", "装備獲得", "アイテム獲得", "回復", "スキル獲得", "特殊遭遇"]
