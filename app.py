@@ -144,6 +144,29 @@ def init_enemy(is_boss=False):
 def run_battle_turn():
     # 簡易自動戦闘シミュレーションロジック
     log = []
+    # 1. ヒーラーの行動判定（攻撃前に回復を行う）
+    for pos, char in st.session_state.grid_ally.items():
+        if char and char["role"] == "ヒーラー" and char["hp"] > 0:
+            # 味方全員のHP割合をチェック
+            allies = [c for c in st.session_state.grid_ally.values() if c and c["hp"] > 0]
+            if not allies: continue
+            
+            # HP割合が最小のキャラを探す
+            lowest_hp_ally = min(allies, key=lambda x: x["hp"] / x["max_hp"])
+            
+            # 全員がHP最大か判定
+            all_full = all(c["hp"] == c["max_hp"] for c in allies)
+            
+            if not all_full:
+                # 回復処理
+                heal_amount = char.get("heal", 20)
+                lowest_hp_ally["hp"] = min(lowest_hp_ally["max_hp"], lowest_hp_ally["hp"] + heal_amount)
+                log.append(f"✨ {char['name']} が {lowest_hp_ally['name']} を回復した！")
+                # ヒーラー自身は回復後に攻撃しない仕様とするため、フラグなどで制御が必要だが、
+                # ここでは簡易的に「回復した場合は攻撃処理をスキップ」させる仕組みにする
+                char["did_act"] = True 
+            else:
+                char["did_act"] = False # 攻撃処理へ回す
     # 味方の攻撃
     for pos, char in st.session_state.grid_ally.items():
         if char and char["hp"] > 0:
@@ -157,6 +180,9 @@ def run_battle_turn():
                 log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
                 if enemy["hp"] <= 0:
                     log.append(f"💥 {enemy['name']} を倒した！")
+            # 次のターンのためにフラグをリセット
+            if char["role"] == "ヒーラー":
+                char["did_act"] = False
     if st.session_state.current_enemy_boss:
         # 空いているマスを探す
         empty_slots = [k for k, v in st.session_state.grid_enemy.items() if v is None]
