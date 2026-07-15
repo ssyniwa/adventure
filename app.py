@@ -530,25 +530,44 @@ elif st.session_state.phase == "BATTLE":
 elif st.session_state.phase == "SHOP":
     st.title("💰 装備ショップ")
     st.write(f"所持金: {st.session_state.gold} G")
-    
+
     # 1. 販売リスト
     st.subheader("販売リスト")
-    for item in st.session_state.shop_items:
-        if st.button(f"購入: {item['name']} ({item['price']}G)"):
+    for i, item in enumerate(st.session_state.shop_items):
+        if st.button(f"購入: {item['name']} ({item['price']}G)", key=f"buy_{i}"):
             if st.session_state.gold >= item['price']:
                 st.session_state.gold -= item['price']
-                # インベントリ等に保存するロジックが必要
+                # インベントリに追加（stateで管理）
+                if "inventory" not in st.session_state: st.session_state.inventory = []
+                st.session_state.inventory.append(item.copy())
             else:
                 st.error("資金不足です！")
-    
-    # 2. キャラクターごとの装備管理
-    st.subheader("装備の入れ替え")
-    for char in st.session_state.party:
-        with st.expander(f"{char['name']} の装備"):
-            # 武器スロット表示と入れ替え（ドロップダウン等）
-            for i in range(2):
-                st.write(f"武器スロット{i+1}: {char['weapon_slots'][i] or 'なし'}")
-            st.write(f"防具: {char['armor_slot'] or 'なし'}")
+
+    # 2. 装備入れ替え・装着UI
+    st.subheader("装備の装着")
+    if "inventory" in st.session_state and st.session_state.inventory:
+        # どのアイテムを
+        selected_item_idx = st.selectbox("装着するアイテムを選択", range(len(st.session_state.inventory)), 
+                                         format_func=lambda i: st.session_state.inventory[i]['name'])
+        item = st.session_state.inventory[selected_item_idx]
+        
+        # どのキャラの
+        target_char = st.selectbox("装着対象のキャラクター", st.session_state.party, format_func=lambda c: c['name'])
+        
+        # どのスロットに
+        if item['type'] == 'weapon':
+            slot = st.selectbox("スロットを選択", [0, 1], format_func=lambda s: f"武器スロット{s+1}")
+            if st.button("装着する"):
+                target_char['weapon_slots'][slot] = item
+                st.session_state.inventory.pop(selected_item_idx)
+                st.rerun()
+        else:
+            if st.button("装着する"):
+                target_char['armor_slot'] = item
+                st.session_state.inventory.pop(selected_item_idx)
+                st.rerun()
+    else:
+        st.write("所持品がありません")
     
     if st.button("探索に戻る"):
         st.session_state.phase = "EXPLORE"
