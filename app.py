@@ -77,7 +77,7 @@ ENEMY_POOL = {
         "boss": {"name": "終焉の紅蓮竜", "hp": 1200, "atk": 65, "df": 35, "image": "assets/dragon_boss.png"}
     }
 }
-EVENT_TYPES = ["戦闘", "装備獲得", "アイテム獲得", "回復", "スキル獲得", "特殊遭遇"]
+EVENT_TYPES = ["戦闘", "装備獲得", "アイテム獲得", "回復", "スキル獲得"]
 def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
     if os.path.exists(cell["image"]):
