@@ -85,7 +85,8 @@ def display_character_card(cell, is_ally):
     else:
         placeholder_color = "🔵" if is_ally else "🔴"
         st.markdown(f"<div style='text-align:center;font-size:40px;background:#eee;padding:10px;border-radius:5px;'>{placeholder_color}</div>", unsafe_allow_html=True)
-    
+    if cell.get("skill_duration", 0) > 0:
+        st.markdown(f"**⚡ {cell['skill']} (残り {cell['skill_duration']}T)**")
     # キャラクター名とHPバーの表示
     st.caption(f"**{cell['name']}**")
     st.progress(max(0.0, min(1.0, cell["hp"] / cell["max_hp"])))
@@ -140,7 +141,19 @@ def init_enemy(is_boss=False):
             enemy_data = enemy_template.copy()
             enemy_data["max_hp"] = enemy_data["hp"]
             st.session_state.grid_enemy[slot] = enemy_data
+def apply_skill_logic(char, log):
+    # 1. ターン経過による持続効果の減少
+    if char.get("skill_duration", 0) > 0:
+        char["skill_duration"] -= 1
+        if char["skill_duration"] == 0:
+            log.append(f"ℹ️ {char['name']} のスキル効果が切れた。")
 
+    # 2. スキル発動判定（確率30%で発動）
+    if char.get("skill_duration", 0) == 0 and random.random() < 0.3:
+        char["skill_duration"] = 2  # 2ターン持続
+        log.append(f"✨ {char['name']} がスキル『{char['skill']}』を発動！")
+        return True # スキル発動時は通常攻撃をスキップ
+    return False
 def run_battle_turn():
     # 簡易自動戦闘シミュレーションロジック
     log = []
@@ -167,6 +180,8 @@ def run_battle_turn():
                 char["did_act"] = True 
             else:
                 char["did_act"] = False # 攻撃処理へ回す
+    if apply_skill_logic(char, log):
+                continue # スキル発動したら攻撃はしない
     # 味方の攻撃
     for pos, char in st.session_state.grid_ally.items():
         if char and char["hp"] > 0:
@@ -178,6 +193,10 @@ def run_battle_turn():
                 damage = max(1, char["atk"] - enemy["df"])
                 enemy["hp"] -= damage
                 log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
+                # 例：暗殺者レイジの「毒攻撃」
+                if char.get("skill") == "毒攻撃" and char.get("skill_duration", 0) > 0:
+                    enemy["hp"] -= 5 # 追加の継続ダメージ
+                    log.append(f"🧪 毒による追加ダメージ！")
                 if enemy["hp"] <= 0:
                     log.append(f"💥 {enemy['name']} を倒した！")
             # 次のターンのためにフラグをリセット
@@ -204,7 +223,11 @@ def run_battle_turn():
                 target_pos = random.choice(front_line) if front_line else random.choice(alive_allies)
                 
                 char = st.session_state.grid_ally[target_pos]
-                damage = max(1, enemy["atk"] - char["df"])
+                damage = max(1, char["atk"] - enemy["df"])
+                if enemy.get("skill") == "鉄壁の構え" and enemy.get("skill_duration", 0) > 0:
+                    damage //= 2 # ダメージを半減
+                    log.append(f"🛡️ 鉄壁の構えでダメージ軽減！")
+                
                 char["hp"] -= damage
                 log.append(f"👹 {enemy['name']} が {char['name']} に {damage} ダメージ！")
                 if char["hp"] <= 0:
