@@ -8,20 +8,20 @@ st.set_page_config(page_title="Streamlit Roguelike", layout="wide")
 # --- 1. データ定義 ---
 CHARACTER_POOL = {
     "ブロッカー": [
-        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー", "image": "assets/altania.png"},
-        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー", "image": "assets/golaias.png"}
+        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー","skill": "鉄壁の構え", "skill_duration": 1, "image": "assets/altania.png"},
+        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー","skill": "物理反射", "skill_duration": 1, "image": "assets/golaias.png"}
     ],
     "アタッカー": [
-        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー", "image": "assets/elsa.png"},
-        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー", "image": "assets/reizi.png"},
-        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー", "image": "assets/silf.png"},
-        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー", "image": "assets/vald.png"},
-        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー", "image": "assets/musasi.png"},
-        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー", "image": "assets/jeek.png"}
+        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー","skill": "連携攻撃", "skill_duration": 1, "image": "assets/elsa.png"},
+        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー","skill": "毒攻撃", "skill_duration": 2, "image": "assets/reizi.png"},
+        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー","skill": "遠距離攻撃", "skill_duration": 1, "image": "assets/silf.png"},
+        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー","skill": "吸収", "skill_duration": 1, "image": "assets/vald.png"},
+        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー", "skill": "機動攻撃", "skill_duration": 1,"image": "assets/musasi.png"},
+        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー","skill": "貫通攻撃", "skill_duration": 1, "image": "assets/jeek.png"}
     ],
     "ヒーラー": [
-        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20, "image": "assets/sesiria.png"},
-        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15, "image": "assets/alia.png"}
+        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20,"skill": "リジェネレーション", "skill_duration": 3, "image": "assets/sesiria.png"},
+        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15,"skill": "聖なる陣形", "skill_duration": 3, "image": "assets/alia.png"}
     ]
 }
 # エリアごとの敵プール (通常モブとボスをエリア別に定義)
