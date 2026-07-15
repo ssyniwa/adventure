@@ -212,69 +212,73 @@ def run_battle_turn():
                     char["did_act"] = True 
                 else:
                     char["did_act"] = False # 攻撃処理へ回す
-    if apply_skill_logic(char, log):
-        continue # スキル発動したら攻撃はしない
+    
     for char in st.session_state.grid_ally.values():
         if char and char.get("is_regen"):
             char["hp"] = min(char["max_hp"], char["hp"] + 10)
             log.append(f"🌿 {char['name']} のリジェネでHPが回復した！")
     # 味方の攻撃
     for pos, char in st.session_state.grid_ally.items():
-        if char and char["hp"] > 0:
-            # 生きている敵を探す
-            alive_enemies = [k for k, v in st.session_state.grid_enemy.items() if v and v["hp"] > 0]
-            if alive_enemies:
-                target_pos = random.choice(alive_enemies)
-                enemy = st.session_state.grid_enemy[target_pos]
-                last_attacked_enemy=enemy
-                damage = max(1, char["atk"] - enemy["df"])
-                enemy["hp"] -= damage
-                log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
-                # 例：暗殺者レイジの「毒攻撃」
-                if char.get("skill") == "毒攻撃" and char.get("skill_duration", 0) > 0:
-                    enemy["hp"] -= 5 # 追加の継続ダメージ
-                    log.append(f"🧪 毒による追加ダメージ！")
-                # --- スキル処理分岐 ---
-                # 1. 侍ムサシ：バックスタブ
-                elif char["skill"] == "バックスタブ" and random.random() < 0.3:
-                    # 敵の最後列を特定して攻撃
-                    targets = [v for k, v in st.session_state.grid_enemy.items() if k.endswith(",0") and v]
-                    if targets:
-                        target = random.choice(targets)
-                        target["hp"] -= (char["atk"] * 1.5)
-                        # 位置入れ替え（簡易版：自分を最前列へ）
-                        st.session_state.grid_ally[pos] = None
-                        st.session_state.grid_ally[pos.replace(",0", ",2")] = char
-                        log.append(f"🗡️ ムサシのバックスタブ！位置を入れ替えた！")
-                
-                # 2. 狩人シルフ：ピアッシング・ショット
-                elif char["skill"] == "ピアッシング・ショット" and random.random() < 0.3:
-                    for e in st.session_state.grid_enemy.values():
-                        if e and e["hp"] > 0: e["hp"] -= char["atk"] * 0.5
-                    log.append(f"🏹 シルフの全体攻撃！")
-        
-                # 3. 竜騎士ジーク：貫通攻撃（同列の敵）
-                elif char["skill"] == "貫通攻撃" and random.random() < 0.3:
-                    row_idx = pos.split(",")[0]
-                    for e in get_row_enemies(row_idx):
-                        e["hp"] -= char["atk"]
-                    log.append(f"🐉 ジークの貫通攻撃！")
-        
-                # 4. 魔術師エルザ：連携攻撃
-                elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy:
-                    last_attacked_enemy["hp"] -= char["atk"] * 0.8
-                    log.append(f"✨ エルザの追撃！")
-        
-                # 5. 狂戦士バルド：吸収
-                elif char["skill"] == "吸収" and random.random() < 0.3:
-                    last_attacked_enemy["hp"] -= char["atk"] 
-                    char["hp"] += char["atk"]
-                
-            if enemy["hp"] <= 0:
-                log.append(f"💥 {enemy['name']} を倒した！")
-            # 次のターンのためにフラグをリセット
-            if char["role"] == "ヒーラー":
-                char["did_act"] = False
+        if not char or char["hp"] <= 0 or char.get("did_act", False):
+            continue
+            
+        # スキル発動判定（攻撃系）
+        if apply_skill_logic(char, log):
+            continue
+        # 生きている敵を探す
+        alive_enemies = [k for k, v in st.session_state.grid_enemy.items() if v and v["hp"] > 0]
+        if alive_enemies:
+            target_pos = random.choice(alive_enemies)
+            enemy = st.session_state.grid_enemy[target_pos]
+            last_attacked_enemy=enemy
+            damage = max(1, char["atk"] - enemy["df"])
+            enemy["hp"] -= damage
+            log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
+            # 例：暗殺者レイジの「毒攻撃」
+            if char.get("skill") == "毒攻撃" and char.get("skill_duration", 0) > 0:
+                enemy["hp"] -= 5 # 追加の継続ダメージ
+                log.append(f"🧪 毒による追加ダメージ！")
+            # --- スキル処理分岐 ---
+            # 1. 侍ムサシ：バックスタブ
+            elif char["skill"] == "バックスタブ" and random.random() < 0.3:
+                # 敵の最後列を特定して攻撃
+                targets = [v for k, v in st.session_state.grid_enemy.items() if k.endswith(",0") and v]
+                if targets:
+                    target = random.choice(targets)
+                    target["hp"] -= (char["atk"] * 1.5)
+                    # 位置入れ替え（簡易版：自分を最前列へ）
+                    st.session_state.grid_ally[pos] = None
+                    st.session_state.grid_ally[pos.replace(",0", ",2")] = char
+                    log.append(f"🗡️ ムサシのバックスタブ！位置を入れ替えた！")
+            
+            # 2. 狩人シルフ：ピアッシング・ショット
+            elif char["skill"] == "ピアッシング・ショット" and random.random() < 0.3:
+                for e in st.session_state.grid_enemy.values():
+                    if e and e["hp"] > 0: e["hp"] -= char["atk"] * 0.5
+                log.append(f"🏹 シルフの全体攻撃！")
+    
+            # 3. 竜騎士ジーク：貫通攻撃（同列の敵）
+            elif char["skill"] == "貫通攻撃" and random.random() < 0.3:
+                row_idx = pos.split(",")[0]
+                for e in get_row_enemies(row_idx):
+                    e["hp"] -= char["atk"]
+                log.append(f"🐉 ジークの貫通攻撃！")
+    
+            # 4. 魔術師エルザ：連携攻撃
+            elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy:
+                last_attacked_enemy["hp"] -= char["atk"] * 0.8
+                log.append(f"✨ エルザの追撃！")
+    
+            # 5. 狂戦士バルド：吸収
+            elif char["skill"] == "吸収" and random.random() < 0.3:
+                last_attacked_enemy["hp"] -= char["atk"] 
+                char["hp"] += char["atk"]
+            
+        if enemy["hp"] <= 0:
+            log.append(f"💥 {enemy['name']} を倒した！")
+        # 次のターンのためにフラグをリセット
+        if char["role"] == "ヒーラー":
+            char["did_act"] = False
     if st.session_state.current_enemy_boss:
         # 空いているマスを探す
         empty_slots = [k for k, v in st.session_state.grid_enemy.items() if v is None]
@@ -311,9 +315,9 @@ def run_battle_turn():
                     log.append(f"💀 {char['name']} が倒れた…")
 
     st.session_state.battle_log.extend(log)
-    df_buff_duration-=1
-    if df_buff_duration==0:
-        df-=5
+    char["df_buff_duration"]-=1
+    if char["df_buff_duration"]==0:
+        char["df"]-= 5
     # 勝敗判定
     allies_alive = any(v["hp"] > 0 for v in st.session_state.grid_ally.values() if v)
     enemies_alive = any(v["hp"] > 0 for v in st.session_state.grid_enemy.values() if v)
