@@ -68,7 +68,7 @@ ENEMY_POOL = {
     }, 
     5: {
         "normal": [
-            {"name": "ドラゴニュート", "hp": 150, "atk": 40, "df": 18, "image": "assetsdragoniut.png"},
+            {"name": "ドラゴニュート", "hp": 150, "atk": 40, "df": 18, "image": "assets/dragoniut.png"},
             {"name": "キマイラ", "hp": 140, "atk": 38, "df": 15, "image": "assets/chimera.png"},
             {"name": "アークデーモン", "hp": 120, "atk": 45, "df": 10, "image": "assets/demon.png"},
             {"name": "アーマードナイト", "hp": 180, "atk": 30, "df": 25, "image": "assets/armored_knight.png"},
