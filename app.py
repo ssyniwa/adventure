@@ -8,20 +8,20 @@ st.set_page_config(page_title="Streamlit Roguelike", layout="wide")
 # --- 1. データ定義 ---
 CHARACTER_POOL = {
     "ブロッカー": [
-        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー","skill": "鉄壁の構え", "skill_duration": 0, "image": "assets/altania.png"},
-        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー","skill": "物理反射", "skill_duration": 0, "image": "assets/golaias.png"}
+        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー","skill": "鉄壁の構え", "skill_duration": 0, "image": "assets/altania.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー","skill": "物理反射", "skill_duration": 0, "image": "assets/golaias.png", "weapon_slots": [None, None], "armor_slot": None}
     ],
     "アタッカー": [
-        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー","skill": "連携攻撃", "skill_duration": 0, "image": "assets/elsa.png"},
-        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー","skill": "毒攻撃", "skill_duration": 0, "image": "assets/reizi.png"},
-        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー","skill": "遠距離攻撃", "skill_duration": 0, "image": "assets/silf.png"},
-        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー","skill": "吸収", "skill_duration": 0, "image": "assets/vald.png"},
-        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー", "skill": "機動攻撃", "skill_duration": 0,"image": "assets/musasi.png"},
-        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー","skill": "貫通攻撃", "skill_duration": 0, "image": "assets/jeek.png"}
+        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー","skill": "連携攻撃", "skill_duration": 0, "image": "assets/elsa.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー","skill": "毒攻撃", "skill_duration": 0, "image": "assets/reizi.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー","skill": "遠距離攻撃", "skill_duration": 0, "image": "assets/silf.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー","skill": "吸収", "skill_duration": 0, "image": "assets/vald.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー", "skill": "機動攻撃", "skill_duration": 0,"image": "assets/musasi.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー","skill": "貫通攻撃", "skill_duration": 0, "image": "assets/jeek.png", "weapon_slots": [None, None], "armor_slot": None}
     ],
     "ヒーラー": [
-        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20,"skill": "リジェネレーション", "skill_duration": 0, "image": "assets/sesiria.png"},
-        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15,"skill": "聖なる陣形", "skill_duration": 0, "image": "assets/alia.png"}
+        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20,"skill": "リジェネレーション", "skill_duration": 0, "image": "assets/sesiria.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15,"skill": "聖なる陣形", "skill_duration": 0, "image": "assets/alia.png", "weapon_slots": [None, None], "armor_slot": None}
     ]
 }
 # エリアごとの敵プール (通常モブとボスをエリア別に定義)
@@ -112,6 +112,11 @@ if "phase" not in st.session_state:
     if "exp" not in st.session_state: st.session_state.exp = 0
     if "level" not in st.session_state: st.session_state.level = 1
     if "gold" not in st.session_state: st.session_state.gold = 0
+    if "shop_items" not in st.session_state:
+        st.session_state.shop_items = [
+            {"name": "鋼鉄の剣", "type": "weapon", "atk": 5, "price": 100},
+            {"name": "皮の盾", "type": "armor", "df": 3, "price": 80},
+        ]    
 # --- 3. 関数定義 ---
 def generate_choices():
     return random.sample(EVENT_TYPES, 3)
@@ -413,7 +418,8 @@ elif st.session_state.phase == "EXPLORE":
                         st.success(f"{choice}に成功！パーティーが強化/回復された。")
                         for c in st.session_state.party:
                             if choice == "回復": c["hp"] = min(c["max_hp"], c["hp"] + 20)
-                            if choice == "装備獲得": c["df"] += 2
+                            if choice == "装備獲得":
+                                st.session_state.phase = "SHOP"
                             if choice == "スキル獲得": c["atk"] += 2
                         st.session_state.current_choices = generate_choices()
                     st.rerun()
@@ -521,7 +527,32 @@ elif st.session_state.phase == "BATTLE":
         elif result == "LOSE":
             st.session_state.phase = "GAME_OVER"
         st.rerun()
-
+elif st.session_state.phase == "SHOP":
+    st.title("💰 装備ショップ")
+    st.write(f"所持金: {st.session_state.gold} G")
+    
+    # 1. 販売リスト
+    st.subheader("販売リスト")
+    for item in st.session_state.shop_items:
+        if st.button(f"購入: {item['name']} ({item['price']}G)"):
+            if st.session_state.gold >= item['price']:
+                st.session_state.gold -= item['price']
+                # インベントリ等に保存するロジックが必要
+            else:
+                st.error("資金不足です！")
+    
+    # 2. キャラクターごとの装備管理
+    st.subheader("装備の入れ替え")
+    for char in st.session_state.party:
+        with st.expander(f"{char['name']} の装備"):
+            # 武器スロット表示と入れ替え（ドロップダウン等）
+            for i in range(2):
+                st.write(f"武器スロット{i+1}: {char['weapon_slots'][i] or 'なし'}")
+            st.write(f"防具: {char['armor_slot'] or 'なし'}")
+    
+    if st.button("探索に戻る"):
+        st.session_state.phase = "EXPLORE"
+        st.rerun()
 # 4-4. ゲームオーバー / クリア
 elif st.session_state.phase == "GAME_OVER":
     st.title("💀 GAME OVER")
