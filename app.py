@@ -154,9 +154,17 @@ def apply_skill_logic(char, log):
         log.append(f"✨ {char['name']} がスキル『{char['skill']}』を発動！")
         return True # スキル発動時は通常攻撃をスキップ
     return False
+def get_column_allies(col_idx):
+    """指定された列(0,1,2)の味方リストを返す"""
+    return [c for pos, c in st.session_state.grid_ally.items() if c and pos.endswith(f",{col_idx}")]
+
+def get_row_enemies(row_idx):
+    """指定された行(0,1,2)の敵リストを返す"""
+    return [e for pos, e in st.session_state.grid_enemy.items() if e and pos.startswith(f"{row_idx},")]    
 def run_battle_turn():
     # 簡易自動戦闘シミュレーションロジック
     log = []
+    last_attacked_enemy = None
     # 1. ヒーラーの行動判定（攻撃前に回復を行う）
     for pos, char in st.session_state.grid_ally.items():
         if char and char["role"] == "ヒーラー" and char["hp"] > 0:
@@ -190,6 +198,7 @@ def run_battle_turn():
             if alive_enemies:
                 target_pos = random.choice(alive_enemies)
                 enemy = st.session_state.grid_enemy[target_pos]
+                last_attacked_enemy=enemy
                 damage = max(1, char["atk"] - enemy["df"])
                 enemy["hp"] -= damage
                 log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
@@ -197,6 +206,47 @@ def run_battle_turn():
                 if char.get("skill") == "毒攻撃" and char.get("skill_duration", 0) > 0:
                     enemy["hp"] -= 5 # 追加の継続ダメージ
                     log.append(f"🧪 毒による追加ダメージ！")
+                # --- スキル処理分岐 ---
+                # 1. 侍ムサシ：バックスタブ
+                elif char["skill"] == "バックスタブ" and random.random() < 0.3:
+                    # 敵の最後列を特定して攻撃
+                    targets = [v for k, v in st.session_state.grid_enemy.items() if k.endswith(",0") and v]
+                    if targets:
+                        target = random.choice(targets)
+                        target["hp"] -= (char["atk"] * 1.5)
+                        # 位置入れ替え（簡易版：自分を最前列へ）
+                        st.session_state.grid_ally[pos] = None
+                        st.session_state.grid_ally[pos.replace(",0", ",2")] = char
+                        log.append(f"🗡️ ムサシのバックスタブ！位置を入れ替えた！")
+                
+                # 2. 狩人シルフ：ピアッシング・ショット
+                elif char["skill"] == "ピアッシング・ショット" and random.random() < 0.3:
+                    for e in st.session_state.grid_enemy.values():
+                        if e and e["hp"] > 0: e["hp"] -= char["atk"] * 0.5
+                    log.append(f"🏹 シルフの全体攻撃！")
+        
+                # 3. 竜騎士ジーク：貫通攻撃（同列の敵）
+                elif char["skill"] == "貫通攻撃" and random.random() < 0.3:
+                    row_idx = pos.split(",")[0]
+                    for e in get_row_enemies(row_idx):
+                        e["hp"] -= char["atk"]
+                    log.append(f"🐉 ジークの貫通攻撃！")
+        
+                # 4. 魔術師エルザ：連携攻撃
+                elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy:
+                    last_attacked_enemy["hp"] -= char["atk"] * 0.8
+                    log.append(f"✨ エルザの追撃！")
+        
+                # 5. 狂戦士バルド：吸収
+                elif char["skill"] == "吸収" and random.random() < 0.3:
+                    last_attacked_enemy["hp"] -= char["atk"] 
+                    char["hp"] += char["atk"]
+                
+                # 6. 司祭セシリア/吟遊詩人アリア：バフ付与
+                elif char["skill"] in ["リジェネレーション", "聖なる陣形"]:
+                    # durationをセットし、次ターンから効果を発揮するフラグを立てる
+                    char["skill_duration"] = 3
+                    log.append(f"🛡️ {char['name']} がスキルを発動！")
                 if enemy["hp"] <= 0:
                     log.append(f"💥 {enemy['name']} を倒した！")
             # 次のターンのためにフラグをリセット
