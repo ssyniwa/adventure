@@ -213,7 +213,7 @@ def run_battle_turn():
                 else:
                     char["did_act"] = False # 攻撃処理へ回す
     if apply_skill_logic(char, log):
-                continue # スキル発動したら攻撃はしない
+        continue # スキル発動したら攻撃はしない
     for char in st.session_state.grid_ally.values():
         if char and char.get("is_regen"):
             char["hp"] = min(char["max_hp"], char["hp"] + 10)
