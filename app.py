@@ -109,7 +109,9 @@ if "phase" not in st.session_state:
     st.session_state.current_choices = []
     st.session_state.battle_log = []
     st.session_state.current_enemy_boss = False
-
+    if "exp" not in st.session_state: st.session_state.exp = 0
+    if "level" not in st.session_state: st.session_state.level = 1
+    if "gold" not in st.session_state: st.session_state.gold = 0
 # --- 3. 関数定義 ---
 def generate_choices():
     return random.sample(EVENT_TYPES, 3)
@@ -485,6 +487,25 @@ elif st.session_state.phase == "BATTLE":
         result = run_battle_turn()
         if result == "WIN":
             st.success("勝利！")
+            # --- 経験値と資金の獲得 ---
+            gain_exp = 50 * st.session_state.area
+            gain_gold = 100 * st.session_state.area
+            st.session_state.exp += gain_exp
+            st.session_state.gold += gain_gold
+            st.write(f"🎉 経験値 {gain_exp} と 資金 {gain_gold} を獲得！")
+            
+            # --- レベルアップ判定 ---
+            if st.session_state.exp >= (st.session_state.level * 100):
+                st.session_state.level += 1
+                st.session_state.exp = 0
+                # パーティー全員のステータス上昇
+                for char in st.session_state.party:
+                    char["max_hp"] += 10
+                    char["hp"] = char["max_hp"]
+                    char["atk"] += 2
+                    char["df"] += 1
+                st.balloons()
+                st.success(f"レベルアップ！全員の能力が強化された！")
             if st.session_state.current_enemy_boss:
                 if st.session_state.area == 5:
                     st.session_state.phase = "CLEAR"
