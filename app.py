@@ -568,7 +568,12 @@ elif st.session_state.phase == "SHOP":
                 st.rerun()
     else:
         st.write("所持品がありません")
-    
+    for char in st.session_state.party:
+        with st.expander(f"{char['name']} の装備"):
+            # 武器スロット表示と入れ替え（ドロップダウン等）
+            for i in range(2):
+                st.write(f"武器スロット{i+1}: {char['weapon_slots'][i] or 'なし'}")
+            st.write(f"防具: {char['armor_slot'] or 'なし'}")
     if st.button("探索に戻る"):
         st.session_state.phase = "EXPLORE"
         st.rerun()
