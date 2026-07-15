@@ -315,9 +315,13 @@ def run_battle_turn():
                     log.append(f"💀 {char['name']} が倒れた…")
 
     st.session_state.battle_log.extend(log)
-    char["df_buff_duration"]-=1
-    if char["df_buff_duration"]==0:
-        char["df"]-= 5
+    duration = char.get('df_buff_duration', 0)
+
+    if duration > 0:
+        char['df_buff_duration'] -= 1
+        if char['df_buff_duration'] == 0:
+            char['df'] -= 5  # バフ解除
+            log.append(f"ℹ️ {char['name']} の陣形バフが切れた。")
     # 勝敗判定
     allies_alive = any(v["hp"] > 0 for v in st.session_state.grid_ally.values() if v)
     enemies_alive = any(v["hp"] > 0 for v in st.session_state.grid_enemy.values() if v)
