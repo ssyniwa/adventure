@@ -8,20 +8,20 @@ st.set_page_config(page_title="Streamlit Roguelike", layout="wide")
 # --- 1. データ定義 ---
 CHARACTER_POOL = {
     "ブロッカー": [
-        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー","skill": "鉄壁の構え", "skill_duration": 1, "image": "assets/altania.png"},
-        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー","skill": "物理反射", "skill_duration": 1, "image": "assets/golaias.png"}
+        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー","skill": "鉄壁の構え", "skill_duration": 0, "image": "assets/altania.png"},
+        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー","skill": "物理反射", "skill_duration": 0, "image": "assets/golaias.png"}
     ],
     "アタッカー": [
-        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー","skill": "連携攻撃", "skill_duration": 1, "image": "assets/elsa.png"},
-        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー","skill": "毒攻撃", "skill_duration": 2, "image": "assets/reizi.png"},
-        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー","skill": "遠距離攻撃", "skill_duration": 1, "image": "assets/silf.png"},
-        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー","skill": "吸収", "skill_duration": 1, "image": "assets/vald.png"},
-        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー", "skill": "機動攻撃", "skill_duration": 1,"image": "assets/musasi.png"},
-        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー","skill": "貫通攻撃", "skill_duration": 1, "image": "assets/jeek.png"}
+        {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー","skill": "連携攻撃", "skill_duration": 0, "image": "assets/elsa.png"},
+        {"name": "暗殺者レイジ", "hp": 90, "atk": 22, "df": 8, "role": "アタッカー","skill": "毒攻撃", "skill_duration": 0, "image": "assets/reizi.png"},
+        {"name": "狩人シルフ", "hp": 95, "atk": 20, "df": 10, "role": "アタッカー","skill": "遠距離攻撃", "skill_duration": 0, "image": "assets/silf.png"},
+        {"name": "狂戦士バルド", "hp": 120, "atk": 18, "df": 12, "role": "アタッカー","skill": "吸収", "skill_duration": 0, "image": "assets/vald.png"},
+        {"name": "侍ムサシ", "hp": 100, "atk": 24, "df": 9, "role": "アタッカー", "skill": "機動攻撃", "skill_duration": 0,"image": "assets/musasi.png"},
+        {"name": "竜騎士ジーク", "hp": 110, "atk": 21, "df": 14, "role": "アタッカー","skill": "貫通攻撃", "skill_duration": 0, "image": "assets/jeek.png"}
     ],
     "ヒーラー": [
-        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20,"skill": "リジェネレーション", "skill_duration": 3, "image": "assets/sesiria.png"},
-        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15,"skill": "聖なる陣形", "skill_duration": 3, "image": "assets/alia.png"}
+        {"name": "司祭セシリア", "hp": 85, "atk": 8, "df": 7, "role": "ヒーラー", "heal": 20,"skill": "リジェネレーション", "skill_duration": 0, "image": "assets/sesiria.png"},
+        {"name": "吟遊詩人アリア", "hp": 90, "atk": 10, "df": 10, "role": "ヒーラー", "heal": 15,"skill": "聖なる陣形", "skill_duration": 0, "image": "assets/alia.png"}
     ]
 }
 # エリアごとの敵プール (通常モブとボスをエリア別に定義)
@@ -168,28 +168,56 @@ def run_battle_turn():
     # 1. ヒーラーの行動判定（攻撃前に回復を行う）
     for pos, char in st.session_state.grid_ally.items():
         if char and char["role"] == "ヒーラー" and char["hp"] > 0:
-            # 味方全員のHP割合をチェック
-            allies = [c for c in st.session_state.grid_ally.values() if c and c["hp"] > 0]
-            if not allies: continue
-            
-            # HP割合が最小のキャラを探す
-            lowest_hp_ally = min(allies, key=lambda x: x["hp"] / x["max_hp"])
-            
-            # 全員がHP最大か判定
-            all_full = all(c["hp"] == c["max_hp"] for c in allies)
-            
-            if not all_full:
-                # 回復処理
-                heal_amount = char.get("heal", 20)
-                lowest_hp_ally["hp"] = min(lowest_hp_ally["max_hp"], lowest_hp_ally["hp"] + heal_amount)
-                log.append(f"✨ {char['name']} が {lowest_hp_ally['name']} を回復した！")
-                # ヒーラー自身は回復後に攻撃しない仕様とするため、フラグなどで制御が必要だが、
-                # ここでは簡易的に「回復した場合は攻撃処理をスキップ」させる仕組みにする
-                char["did_act"] = True 
+            # --- スキル発動処理 ---
+            # 確率(30%)でスキル発動、かつ未発動状態ならスキル実行
+            if char.get("skill_duration", 0) == 0 and random.random() < 0.3:
+                char["skill_duration"] = 3 # 3ターン持続
+                log.append(f"✨ {char['name']} がスキル『{char['skill']}』を発動！")
+                
+                # 各スキルの固有効果を実行
+                if char["skill"] == "リジェネレーション":
+                    # ターゲットの味方に継続回復付与（ここでは一時的に全味方に付与する等の処理が可能）
+                    for ally in st.session_state.grid_ally.values():
+                        if ally and ally["hp"] > 0:
+                            ally["is_regen"] = True # リジェネフラグを立てる
+                elif char["skill"] == "聖なる陣形（配置バフ）":
+                    # 陣形バフ：同じ列の味方の防御を一時強化
+                    col_idx = pos.split(",")[1]
+                    for ally in get_column_allies(col_idx):
+                        ally["df"] += 5
+                        ally["df_buff_duration"] = 3
+                
+                char["did_act"] = True # 行動済みフラグ
+    
+            # --- 通常回復処理（スキル発動しなかった場合） ---
             else:
-                char["did_act"] = False # 攻撃処理へ回す
+                # 味方全員のHP割合をチェック
+                allies = [c for c in st.session_state.grid_ally.values() if c and c["hp"] > 0]
+                if not allies: continue
+                
+                # HP割合が最小のキャラを探す
+                lowest_hp_ally = min(allies, key=lambda x: x["hp"] / x["max_hp"])
+                
+                # 全員がHP最大か判定
+                all_full = all(c["hp"] == c["max_hp"] for c in allies)
+                
+                    
+                if not all_full:
+                    # 回復処理
+                    heal_amount = char.get("heal", 20)
+                    lowest_hp_ally["hp"] = min(lowest_hp_ally["max_hp"], lowest_hp_ally["hp"] + heal_amount)
+                    log.append(f"✨ {char['name']} が {lowest_hp_ally['name']} を回復した！")
+                    # ヒーラー自身は回復後に攻撃しない仕様とするため、フラグなどで制御が必要だが、
+                    # ここでは簡易的に「回復した場合は攻撃処理をスキップ」させる仕組みにする
+                    char["did_act"] = True 
+                else:
+                    char["did_act"] = False # 攻撃処理へ回す
     if apply_skill_logic(char, log):
                 continue # スキル発動したら攻撃はしない
+    for char in st.session_state.grid_ally.values():
+        if char and char.get("is_regen"):
+            char["hp"] = min(char["max_hp"], char["hp"] + 10)
+            log.append(f"🌿 {char['name']} のリジェネでHPが回復した！")
     # 味方の攻撃
     for pos, char in st.session_state.grid_ally.items():
         if char and char["hp"] > 0:
@@ -242,13 +270,8 @@ def run_battle_turn():
                     last_attacked_enemy["hp"] -= char["atk"] 
                     char["hp"] += char["atk"]
                 
-                # 6. 司祭セシリア/吟遊詩人アリア：バフ付与
-                elif char["skill"] in ["リジェネレーション", "聖なる陣形"]:
-                    # durationをセットし、次ターンから効果を発揮するフラグを立てる
-                    char["skill_duration"] = 3
-                    log.append(f"🛡️ {char['name']} がスキルを発動！")
-                if enemy["hp"] <= 0:
-                    log.append(f"💥 {enemy['name']} を倒した！")
+            if enemy["hp"] <= 0:
+                log.append(f"💥 {enemy['name']} を倒した！")
             # 次のターンのためにフラグをリセット
             if char["role"] == "ヒーラー":
                 char["did_act"] = False
@@ -288,7 +311,9 @@ def run_battle_turn():
                     log.append(f"💀 {char['name']} が倒れた…")
 
     st.session_state.battle_log.extend(log)
-    
+    df_buff_duration-=1
+    if df_buff_duration==0:
+        df-=5
     # 勝敗判定
     allies_alive = any(v["hp"] > 0 for v in st.session_state.grid_ally.values() if v)
     enemies_alive = any(v["hp"] > 0 for v in st.session_state.grid_enemy.values() if v)
