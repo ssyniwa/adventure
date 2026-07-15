@@ -277,7 +277,11 @@ def run_battle_turn():
                 if enemy.get("skill") == "鉄壁の構え" and enemy.get("skill_duration", 0) > 0:
                     damage //= 2 # ダメージを半減
                     log.append(f"🛡️ 鉄壁の構えでダメージ軽減！")
-                
+                # 物理反射の処理
+                elif char["skill"] == "物理反射" and char.get("skill_duration", 0) > 0:
+                    reflect_dmg = damage // 2
+                    enemy["hp"] -= reflect_dmg
+                    log.append(f"🪞 ゴライアスの物理反射！{enemy['name']} に {reflect_dmg} ダメージ！")
                 char["hp"] -= damage
                 log.append(f"👹 {enemy['name']} が {char['name']} に {damage} ダメージ！")
                 if char["hp"] <= 0:
