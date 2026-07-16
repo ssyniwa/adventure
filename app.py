@@ -118,6 +118,25 @@ if "phase" not in st.session_state:
             {"name": "皮の盾", "type": "armor", "df": 3, "price": 80},
         ]    
 # --- 3. 関数定義 ---
+def get_total_stats(char):
+    """キャラクターの基礎ステータス＋装備補正を返す"""
+    atk_bonus = 0
+    df_bonus = 0
+    
+    # 武器スロットの加算
+    for weapon in char.get("weapon_slots", []):
+        if weapon:
+            atk_bonus += weapon.get("atk", 0)
+            
+    # 防具スロットの加算
+    armor = char.get("armor_slot")
+    if armor:
+        df_bonus += armor.get("df", 0)
+        
+    return {
+        "atk": char["atk"] + atk_bonus,
+        "df": char["df"] + df_bonus
+    }
 def generate_choices():
     return random.sample(EVENT_TYPES, 3)
 
@@ -238,7 +257,8 @@ def run_battle_turn():
             target_pos = random.choice(alive_enemies)
             enemy = st.session_state.grid_enemy[target_pos]
             last_attacked_enemy=enemy
-            damage = max(1, char["atk"] - enemy["df"])
+            stats = get_total_stats(char)
+            damage = max(1, stats["atk"] - enemy["df"])
             enemy["hp"] -= damage
             log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
             # 例：暗殺者レイジの「毒攻撃」
@@ -252,7 +272,7 @@ def run_battle_turn():
                 targets = [v for k, v in st.session_state.grid_enemy.items() if k.endswith(",0") and v]
                 if targets:
                     target = random.choice(targets)
-                    target["hp"] -= (char["atk"] * 1.5)
+                    target["hp"] -= (damage * 1.5)
                     # 位置入れ替え（簡易版：自分を最前列へ）
                     st.session_state.grid_ally[pos] = None
                     st.session_state.grid_ally[pos.replace(",0", ",2")] = char
@@ -261,24 +281,24 @@ def run_battle_turn():
             # 2. 狩人シルフ：ピアッシング・ショット
             elif char["skill"] == "ピアッシング・ショット" and random.random() < 0.3:
                 for e in st.session_state.grid_enemy.values():
-                    if e and e["hp"] > 0: e["hp"] -= char["atk"] * 0.5
+                    if e and e["hp"] > 0: e["hp"] -= damage * 0.5
                 log.append(f"🏹 シルフの全体攻撃！")
     
             # 3. 竜騎士ジーク：貫通攻撃（同列の敵）
             elif char["skill"] == "貫通攻撃" and random.random() < 0.3:
                 row_idx = pos.split(",")[0]
                 for e in get_row_enemies(row_idx):
-                    e["hp"] -= char["atk"]
+                    e["hp"] -= damage
                 log.append(f"🐉 ジークの貫通攻撃！")
     
             # 4. 魔術師エルザ：連携攻撃
             elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy:
-                last_attacked_enemy["hp"] -= char["atk"] * 0.8
+                last_attacked_enemy["hp"] -= damage * 0.8
                 log.append(f"✨ エルザの追撃！")
     
             # 5. 狂戦士バルド：吸収
             elif char["skill"] == "吸収" and random.random() < 0.3:
-                last_attacked_enemy["hp"] -= char["atk"] 
+                last_attacked_enemy["hp"] -= damage
                 char["hp"] += char["atk"]
             
         if enemy["hp"] <= 0:
@@ -307,7 +327,8 @@ def run_battle_turn():
                 target_pos = random.choice(front_line) if front_line else random.choice(alive_allies)
                 
                 char = st.session_state.grid_ally[target_pos]
-                damage = max(1, char["atk"] - enemy["df"])
+                stats = get_total_stats(char)
+                damage = max(1, enemy["atk"] - stats["df"])
                 if enemy.get("skill") == "鉄壁の構え" and enemy.get("skill_duration", 0) > 0:
                     damage //= 2 # ダメージを半減
                     log.append(f"🛡️ 鉄壁の構えでダメージ軽減！")
