@@ -84,6 +84,12 @@ ITEM_POOL = [
     {"name": "資金回収魔道具", "type": "gold", "value": 200, "description": "資金を200獲得する"},
     {"name": "高級回復薬", "type": "heal", "value": 50, "description": "HPを50回復する"},
 ]
+SKILL_POOL = [
+    {"name": "超・鉄壁の構え", "duration": 3},
+    {"name": "猛毒の一撃", "duration": 2},
+    {"name": "全体回復陣", "duration": 3},
+    {"name": "カウンターの極意", "duration": 2},
+]
 def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
     if os.path.exists(cell["image"]):
@@ -118,6 +124,8 @@ if "phase" not in st.session_state:
     if "exp" not in st.session_state: st.session_state.exp = 0
     if "level" not in st.session_state: st.session_state.level = 1
     if "gold" not in st.session_state: st.session_state.gold = 0
+    if "skill_candidate" not in st.session_state:
+        st.session_state.skill_candidate = None
     if "item_received" not in st.session_state:
         st.session_state.item_received = None
     if "shop_items" not in st.session_state:
@@ -468,7 +476,8 @@ elif st.session_state.phase == "EXPLORE":
                             if choice == "回復": c["hp"] = min(c["max_hp"], c["hp"] + 20)
                             if choice == "装備獲得":
                                 st.session_state.phase = "SHOP"
-                            if choice == "スキル獲得": c["atk"] += 2
+                            if choice == "スキル獲得":
+                                st.session_state.phase = "SKILL_GET"
                             if choice == "アイテム獲得":
                                 st.session_state.phase = "ITEM_GET" # 専用フェーズへ移動
    
@@ -669,6 +678,36 @@ elif st.session_state.phase == "ITEM_GET":
             st.session_state.item_received = None
             st.session_state.phase = "EXPLORE"
             st.rerun()
+elif st.session_state.phase == "SKILL_GET":
+    st.title("✨ スキル継承の祭壇")
+    st.session_state.skill_candidate = random.choice(SKILL_POOL)
+    candidate = st.session_state.skill_candidate
+    
+    st.subheader(f"発見したスキル: 『{candidate['name']}』")
+    st.write(f"持続: {candidate['duration']}ターン")
+    
+    st.write("---")
+    st.write("誰のスキルと交換しますか？")
+    
+    for char in st.session_state.party:
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            # keyをキャラ名と組み合わせてユニークにする
+            if st.button(f"{char['name']} と交換", key=f"swap_{char['name']}"):
+                char['skill'] = candidate['effect']
+                char['skill_duration'] = 0 # リセット
+                st.success(f"{char['name']} はスキルを『{candidate['effect']}』に変更した！")
+                
+                st.session_state.skill_candidate = None
+                st.session_state.phase = "EXPLORE"
+                st.rerun()
+        with col2:
+            st.write(f"現在のスキル: {char['skill']}")
+
+    if st.button("スキルを捨てて探索に戻る", key="give_up_skill"):
+        st.session_state.skill_candidate = None
+        st.session_state.phase = "EXPLORE"
+        st.rerun()
 # 4-4. ゲームオーバー / クリア
 elif st.session_state.phase == "GAME_OVER":
     st.title("💀 GAME OVER")
