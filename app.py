@@ -404,7 +404,8 @@ if st.session_state.phase == "CHARACTER_SELECT":
                 elif i == 1: st.session_state.grid_ally["0,0"] = char
                 elif i == 2: st.session_state.grid_ally["1,0"] = char
                 else: st.session_state.grid_ally["2,0"] = char
-                    
+                char["weapon_slots"] = [None, None]
+                char["armor_slot"] = None    
             st.session_state.current_choices = generate_choices()
             st.session_state.phase = "EXPLORE"
             st.rerun()
@@ -568,22 +569,26 @@ elif st.session_state.phase == "SHOP":
                     key=f"char_{i}"
                 )
             with col3:
+                
                 if st.button("購入＆装着", key=f"buy_{i}"):
                     if st.session_state.gold >= item['price']:
                         st.session_state.gold -= item['price']
                         
+                        # --- ここでコピーを作成 ---
+                        new_item = item.copy() 
+                        
                         # 武器か防具かで分岐して装着
                         if item['type'] == 'weapon':
-                            # 空いているスロットを探して装着
+                            # スロットが空いているか確認
                             if target_char['weapon_slots'][0] is None:
-                                target_char['weapon_slots'][0] = item
+                                target_char['weapon_slots'][0] = new_item
                             else:
-                                target_char['weapon_slots'][1] = item
+                                target_char['weapon_slots'][1] = new_item
                         else:
-                            target_char['armor_slot'] = item
+                            target_char['armor_slot'] = new_item
                             
                         st.success(f"{target_char['name']} に {item['name']} を装着しました！")
-                        st.rerun()
+                        st.rerun() # これによりページが再読み込みされ、装備一覧が更新される
                     else:
                         st.error("資金不足です！")
 
