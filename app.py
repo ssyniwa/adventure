@@ -85,10 +85,10 @@ ITEM_POOL = [
     {"name": "高級回復薬", "type": "heal", "value": 50, "description": "HPを50回復する"},
 ]
 SKILL_POOL = [
-    {"name": "超・鉄壁の構え", "effect": "鉄壁の構え", "duration": 3},
-    {"name": "猛毒の一撃", "effect": "毒攻撃", "duration": 2},
-    {"name": "全体回復陣", "effect": "リジェネレーション", "duration": 3},
-    {"name": "カウンターの極意", "effect": "物理反射", "duration": 2},
+    {"name": "超・鉄壁の構え", "duration": 3},
+    {"name": "猛毒の一撃", "duration": 2},
+    {"name": "全体回復陣", "duration": 3},
+    {"name": "カウンターの極意","duration": 2},
 ]
 def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
@@ -694,9 +694,9 @@ elif st.session_state.phase == "SKILL_GET":
         with col1:
             # keyをキャラ名と組み合わせてユニークにする
             if st.button(f"{char['name']} と交換", key=f"swap_{char['name']}"):
-                char['skill'] = candidate['effect']
+                char['skill'] = candidate['name']
                 char['skill_duration'] = 0 # リセット
-                st.success(f"{char['name']} はスキルを『{candidate['effect']}』に変更した！")
+                st.success(f"{char['name']} はスキルを『{candidate['name']}』に変更した！")
                 
                 st.session_state.skill_candidate = None
                 st.session_state.phase = "EXPLORE"
