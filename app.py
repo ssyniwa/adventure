@@ -561,25 +561,23 @@ elif st.session_state.phase == "SHOP":
             with col1:
                 st.write(f"**{item['name']}** ({item['price']}G)")
             with col2:
-                # 装備対象のキャラを選択
+                # keyにアイテム名を含めて一意にする
                 target_char = st.selectbox(
-                    f"装着先を選択 ({item['name']})", 
+                    f"装着先を選択", 
                     st.session_state.party, 
                     format_func=lambda c: c['name'],
-                    key=f"char_{i}"
+                    key=f"char_select_{item['name']}_{i}" 
                 )
             with col3:
-                
-                if st.button("購入＆装着", key=f"buy_{i}"):
+                # keyにアイテム名を含めて一意にする
+                if st.button("購入＆装着", key=f"buy_btn_{item['name']}_{i}"):
                     if st.session_state.gold >= item['price']:
                         st.session_state.gold -= item['price']
                         
-                        # --- ここでコピーを作成 ---
                         new_item = item.copy() 
                         
-                        # 武器か防具かで分岐して装着
                         if item['type'] == 'weapon':
-                            # スロットが空いているか確認
+                            # スロット1を優先、空いていれば装着
                             if target_char['weapon_slots'][0] is None:
                                 target_char['weapon_slots'][0] = new_item
                             else:
@@ -587,8 +585,8 @@ elif st.session_state.phase == "SHOP":
                         else:
                             target_char['armor_slot'] = new_item
                             
-                        st.success(f"{target_char['name']} に {item['name']} を装着しました！")
-                        st.rerun() # これによりページが再読み込みされ、装備一覧が更新される
+                        st.success(f"{target_char['name']} に {item['name']} を装着！")
+                        st.rerun() 
                     else:
                         st.error("資金不足です！")
 
