@@ -552,63 +552,63 @@ elif st.session_state.phase == "SHOP":
     st.title("💰 装備ショップ")
     st.write(f"所持金: {st.session_state.gold} G")
 
-    # 1. 販売リスト
+    # 販売リスト（購入と装着を同時に行うUI）
     st.subheader("販売リスト")
     for i, item in enumerate(st.session_state.shop_items):
-        if st.button(f"購入: {item['name']} ({item['price']}G)", key=f"buy_{i}"):
-            if st.session_state.gold >= item['price']:
-                st.session_state.gold -= item['price']
-                # インベントリに追加（stateで管理）
-                if "inventory" not in st.session_state: st.session_state.inventory = []
-                st.session_state.inventory.append(item.copy())
-            else:
-                st.error("資金不足です！")
+        with st.container():
+            col1, col2, col3 = st.columns([2, 2, 1])
+            with col1:
+                st.write(f"**{item['name']}** ({item['price']}G)")
+            with col2:
+                # 装備対象のキャラを選択
+                target_char = st.selectbox(
+                    f"装着先を選択 ({item['name']})", 
+                    st.session_state.party, 
+                    format_func=lambda c: c['name'],
+                    key=f"char_{i}"
+                )
+            with col3:
+                if st.button("購入＆装着", key=f"buy_{i}"):
+                    if st.session_state.gold >= item['price']:
+                        st.session_state.gold -= item['price']
+                        
+                        # 武器か防具かで分岐して装着
+                        if item['type'] == 'weapon':
+                            # 空いているスロットを探して装着
+                            if target_char['weapon_slots'][0] is None:
+                                target_char['weapon_slots'][0] = item
+                            else:
+                                target_char['weapon_slots'][1] = item
+                        else:
+                            target_char['armor_slot'] = item
+                            
+                        st.success(f"{target_char['name']} に {item['name']} を装着しました！")
+                        st.rerun()
+                    else:
+                        st.error("資金不足です！")
 
-    # 2. 装備入れ替え・装着UI
-    st.subheader("装備の装着")
-    if "inventory" in st.session_state and st.session_state.inventory:
-        # どのアイテムを
-        selected_item_idx = st.selectbox("装着するアイテムを選択", range(len(st.session_state.inventory)), 
-                                         format_func=lambda i: st.session_state.inventory[i]['name'])
-        item = st.session_state.inventory[selected_item_idx]
-        
-        # どのキャラの
-        target_char = st.selectbox("装着対象のキャラクター", st.session_state.party, format_func=lambda c: c['name'])
-        
-        # どのスロットに
-        if item['type'] == 'weapon':
-            slot = st.selectbox("スロットを選択", [0, 1], format_func=lambda s: f"武器スロット{s+1}")
-            if st.button("装着する"):
-                target_char['weapon_slots'][slot] = item
-                st.session_state.inventory.pop(selected_item_idx)
-                st.rerun()
-        else:
-            if st.button("装着する"):
-                target_char['armor_slot'] = item
-                st.session_state.inventory.pop(selected_item_idx)
-                st.rerun()
-    else:
-        st.write("所持品がありません")
-        # 3. 現在の装備状況の表示
-        st.subheader("現在のパーティー装備")
-        
-        # キャラクターごとの装備状況を表示
-        for char in st.session_state.party:
-            with st.expander(f"{char['name']} の装備状況"):
-                # 武器の表示
-                weapons = char.get("weapon_slots", [None, None])
-                for i, weapon in enumerate(weapons):
-                    w_name = weapon['name'] if weapon else "なし"
-                    st.write(f"武器スロット{i+1}: {w_name}")
-                
-                # 防具の表示
-                armor = char.get("armor_slot")
-                a_name = armor['name'] if armor else "なし"
-                st.write(f"防具: {a_name}")
-                
-                # 現在のステータス補正値も併せて表示すると親切
-                stats = get_total_stats(char)
-                st.caption(f"合計攻撃力: {stats['atk']} / 合計防御力: {stats['df']}")
+    st.divider()
+    # （既存の「現在のパーティー装備」表示部分をここに置く）
+    # 3. 現在の装備状況の表示
+    st.subheader("現在のパーティー装備")
+    
+    # キャラクターごとの装備状況を表示
+    for char in st.session_state.party:
+        with st.expander(f"{char['name']} の装備状況"):
+            # 武器の表示
+            weapons = char.get("weapon_slots", [None, None])
+            for i, weapon in enumerate(weapons):
+                w_name = weapon['name'] if weapon else "なし"
+                st.write(f"武器スロット{i+1}: {w_name}")
+            
+            # 防具の表示
+            armor = char.get("armor_slot")
+            a_name = armor['name'] if armor else "なし"
+            st.write(f"防具: {a_name}")
+            
+            # 現在のステータス補正値も併せて表示すると親切
+            stats = get_total_stats(char)
+            st.caption(f"合計攻撃力: {stats['atk']} / 合計防御力: {stats['df']}")
             
     if st.button("探索に戻る"):
         st.session_state.phase = "EXPLORE"
