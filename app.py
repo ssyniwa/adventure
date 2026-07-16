@@ -404,8 +404,7 @@ if st.session_state.phase == "CHARACTER_SELECT":
                 elif i == 1: st.session_state.grid_ally["0,0"] = char
                 elif i == 2: st.session_state.grid_ally["1,0"] = char
                 else: st.session_state.grid_ally["2,0"] = char
-                char["weapon_slots"] = [None, None]
-                char["armor_slot"] = None    
+                    
             st.session_state.current_choices = generate_choices()
             st.session_state.phase = "EXPLORE"
             st.rerun()
