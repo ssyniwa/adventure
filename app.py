@@ -114,8 +114,24 @@ if "phase" not in st.session_state:
     if "gold" not in st.session_state: st.session_state.gold = 0
     if "shop_items" not in st.session_state:
         st.session_state.shop_items = [
-            {"name": "鋼鉄の剣", "type": "weapon", "atk": 5, "price": 100},
-            {"name": "皮の盾", "type": "armor", "df": 3, "price": 80},
+            # 初級 (100G - 300G)
+            {"name": "ボロボロの剣", "type": "weapon", "atk": 3, "price": 100},
+            {"name": "なめし皮の盾", "type": "armor", "df": 2, "price": 100},
+            
+            # 中級 (500G - 1000G)
+            {"name": "鋼鉄のロングソード", "type": "weapon", "atk": 10, "price": 800},
+            {"name": "鎖帷子(チェーンメイル)", "type": "armor", "df": 6, "price": 500},
+            {"name": "鋭い短剣", "type": "weapon", "atk": 8, "price": 500},
+            
+            # 上級 (2000G - 5000G)
+            {"name": "ミスリルの大剣", "type": "weapon", "atk": 18, "price": 2500},
+            {"name": "聖騎士の重盾", "type": "armor", "df": 15, "price": 2500},
+            {"name": "業火の魔導杖", "type": "weapon", "atk": 25, "price": 4000},
+            
+            # 伝説 (10000G以上)
+            {"name": "神剣エクスカリバー", "type": "weapon", "atk": 50, "price": 12000},
+            {"name": "竜王の鱗の鎧", "type": "armor", "df": 40, "price": 15000},
+            {"name": "天界の守護盾", "type": "armor", "df": 50, "price": 20000}
         ]    
 # --- 3. 関数定義 ---
 def get_total_stats(char):
