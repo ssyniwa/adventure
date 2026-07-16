@@ -578,7 +578,7 @@ elif st.session_state.phase == "SHOP":
         with st.container():
             col1, col2, col3 = st.columns([2, 2, 1])
             with col1:
-                st.write(f"**{item['name']}** ({item['price']}G)")
+                st.write(f"[{'★' if item['price'] < 400 else'★★' if item['price'] < 1000 else '★★★' if item['price'] < 5000 else '◆伝説'}]**{item['name']}** ({item['price']}G)")
             with col2:
                 # 選択肢は「名前」にする
                 selected_name = st.selectbox(
@@ -610,8 +610,7 @@ elif st.session_state.phase == "SHOP":
                         st.error("資金不足です！")
 
     st.divider()
-    # デバッグ用：現在の中身を表示
-    st.write(f"DEBUG: {st.session_state.party[0]['name']}の武器スロット: {st.session_state.party[0]['weapon_slots']}")
+    
     # 3. 現在の装備状況の表示
     st.subheader("現在のパーティー装備")
     
