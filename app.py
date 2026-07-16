@@ -474,16 +474,14 @@ elif st.session_state.phase == "EXPLORE":
                                 
                                 # アイテム効果の適用
                                 if item['type'] == "boost":
-                                    for c in st.session_state.party:
-                                        if item['effect'] == "atk": c['atk'] += item['value']
-                                        if item['effect'] == "df": c['df'] += item['value']
+                                    if item['effect'] == "atk": c['atk'] += item['value']
+                                    if item['effect'] == "df": c['df'] += item['value']
                                 elif item['type'] == "gold":
-                                    st.session_state.gold += item['value']
+                                    st.session_state.gold += item['value']/4
                                 elif item['type'] == "heal":
-                                    for c in st.session_state.party:
-                                        c["hp"] = min(c["max_hp"], c["hp"] + item['value'])
+                                    c["hp"] = min(c["max_hp"], c["hp"] + item['value'])
                                 
-                                st.button("確認して次へ", key="confirm_item_btn2") # クリックするとループを抜けてリロード
+                                st.button("確認して次へ", key="confirm_item_event_btn") # クリックするとループを抜けてリロード
                         st.session_state.current_choices = generate_choices()
                     st.rerun()
     else:
