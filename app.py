@@ -118,6 +118,8 @@ if "phase" not in st.session_state:
     if "exp" not in st.session_state: st.session_state.exp = 0
     if "level" not in st.session_state: st.session_state.level = 1
     if "gold" not in st.session_state: st.session_state.gold = 0
+    if "item_received" not in st.session_state:
+        st.session_state.item_received = None
     if "shop_items" not in st.session_state:
         st.session_state.shop_items = [
             # 初級 (100G - 300G)
@@ -468,20 +470,8 @@ elif st.session_state.phase == "EXPLORE":
                                 st.session_state.phase = "SHOP"
                             if choice == "スキル獲得": c["atk"] += 2
                             if choice == "アイテム獲得":
-                                item = random.choice(ITEM_POOL)
-                                st.success(f"宝箱を見つけた！中身は『{item['name']}』だった！")
-                                st.write(f"効果: {item['description']}")
-                                
-                                # アイテム効果の適用
-                                if item['type'] == "boost":
-                                    if item['effect'] == "atk": c['atk'] += item['value']
-                                    if item['effect'] == "df": c['df'] += item['value']
-                                elif item['type'] == "gold":
-                                    st.session_state.gold += item['value']/4
-                                elif item['type'] == "heal":
-                                    c["hp"] = min(c["max_hp"], c["hp"] + item['value'])
-                                
-                                st.button("確認して次へ", key="confirm_item_event_btn") # クリックするとループを抜けてリロード
+                                st.session_state.phase = "ITEM_GET" # 専用フェーズへ移動
+   
                         st.session_state.current_choices = generate_choices()
                     st.rerun()
     else:
@@ -655,6 +645,30 @@ elif st.session_state.phase == "SHOP":
     if st.button("探索に戻る"):
         st.session_state.phase = "EXPLORE"
         st.rerun()
+elif st.session_state.phase == "ITEM_GET":
+    st.title("🎁 アイテム獲得！")
+    st.session_state.item_received = random.choice(ITEM_POOL)
+    item = st.session_state.item_received
+    
+    if item:
+        st.subheader(f"宝箱から 『{item['name']}』 を見つけた！")
+        st.info(f"効果: {item['description']}")
+        
+        if st.button("受け取って探索を続ける", key="btn_get_item"):
+            # アイテム効果の適用
+            if item['type'] == "boost":
+                for c in st.session_state.party:
+                    if item['effect'] == "atk": c['atk'] += item['value']
+                    if item['effect'] == "df": c['df'] += item['value']
+            elif item['type'] == "gold":
+                st.session_state.gold += item['value']
+            elif item['type'] == "heal":
+                for c in st.session_state.party:
+                    c["hp"] = min(c["max_hp"], c["hp"] + item['value'])
+            
+            st.session_state.item_received = None
+            st.session_state.phase = "EXPLORE"
+            st.rerun()
 # 4-4. ゲームオーバー / クリア
 elif st.session_state.phase == "GAME_OVER":
     st.title("💀 GAME OVER")
