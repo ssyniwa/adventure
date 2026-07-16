@@ -85,10 +85,16 @@ ITEM_POOL = [
     {"name": "高級回復薬", "type": "heal", "value": 50, "description": "HPを50回復する"},
 ]
 SKILL_POOL = [
-    {"name": "超・鉄壁の構え", "duration": 3},
-    {"name": "猛毒の一撃", "duration": 2},
-    {"name": "全体回復陣", "duration": 3},
-    {"name": "カウンターの極意","duration": 2},
+    {"name": "時空の加速", "duration": 3},
+    {"name": "戦場の咆哮", "duration": 2},
+    {"name": "魂の共鳴", "duration": 3},
+    {"name": "連鎖爆発","duration": 2},
+    {"name": "神速の回避術", "duration": 3},
+    {"name": "憤怒の覚醒", "duration": 2},
+    {"name": "絶対防壁の祈り", "duration": 3},
+    {"name": "マナ・ドレイン","duration": 2},
+    {"name": "弱点看破", "duration": 3},
+    {"name": "運命の分断","duration": 2},
 ]
 def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
