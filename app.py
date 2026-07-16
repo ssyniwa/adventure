@@ -483,7 +483,7 @@ elif st.session_state.phase == "EXPLORE":
                                     for c in st.session_state.party:
                                         c["hp"] = min(c["max_hp"], c["hp"] + item['value'])
                                 
-                                st.button("確認して次へ", key="confirm_item_btn") # クリックするとループを抜けてリロード
+                                st.button("確認して次へ", key="confirm_item_btn2") # クリックするとループを抜けてリロード
                         st.session_state.current_choices = generate_choices()
                     st.rerun()
     else:
