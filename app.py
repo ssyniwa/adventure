@@ -564,32 +564,32 @@ elif st.session_state.phase == "SHOP":
             with col1:
                 st.write(f"**{item['name']}** ({item['price']}G)")
             with col2:
-                # keyにアイテム名を含めて一意にする
-                target_char = st.selectbox(
+                # 選択肢は「名前」にする
+                selected_name = st.selectbox(
                     f"装着先を選択", 
-                    st.session_state.party, 
-                    format_func=lambda c: c['name'],
-                    key=f"char_select_{item['name']}_{i}" 
+                    [c['name'] for c in st.session_state.party], 
+                    key=f"char_select_{item['name']}_{i}"
                 )
             with col3:
-                # keyにアイテム名を含めて一意にする
                 if st.button("購入＆装着", key=f"buy_btn_{item['name']}_{i}"):
                     if st.session_state.gold >= item['price']:
-                        st.session_state.gold -= item['price']
+                        # --- 確実にst.session_stateを更新する処理 ---
+                        target_char = next((c for c in st.session_state.party if c['name'] == selected_name), None)
                         
-                        new_item = item.copy() 
-                        
-                        if item['type'] == 'weapon':
-                            # スロット1を優先、空いていれば装着
-                            if target_char['weapon_slots'][0] is None:
-                                target_char['weapon_slots'][0] = new_item
-                            else:
-                                target_char['weapon_slots'][1] = new_item
-                        else:
-                            target_char['armor_slot'] = new_item
+                        if target_char:
+                            st.session_state.gold -= item['price']
+                            new_item = item.copy() 
                             
-                        st.success(f"{target_char['name']} に {item['name']} を装着！")
-                        st.rerun() 
+                            if item['type'] == 'weapon':
+                                if target_char['weapon_slots'][0] is None:
+                                    target_char['weapon_slots'][0] = new_item
+                                else:
+                                    target_char['weapon_slots'][1] = new_item
+                            else:
+                                target_char['armor_slot'] = new_item
+                                
+                            st.success(f"{target_char['name']} に {item['name']} を装着！")
+                            st.rerun() 
                     else:
                         st.error("資金不足です！")
 
