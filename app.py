@@ -394,6 +394,9 @@ if st.session_state.phase == "CHARACTER_SELECT":
                         # 参照切り離しのためコピー
                         char_copy = c.copy()
                         char_copy["max_hp"] = c["hp"]
+                        # 【重要】ここでスロットを確実に初期化する
+                        char_copy["weapon_slots"] = [None, None]
+                        char_copy["armor_slot"] = None
                         selected_chars.append(char_copy)
             st.session_state.party = selected_chars
             
