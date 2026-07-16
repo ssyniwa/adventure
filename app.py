@@ -78,6 +78,12 @@ ENEMY_POOL = {
     }
 }
 EVENT_TYPES = ["戦闘", "装備獲得", "アイテム獲得", "回復", "スキル獲得"]
+ITEM_POOL = [
+    {"name": "攻撃強化薬", "type": "boost", "effect": "atk", "value": 5, "description": "攻撃力が5上昇する"},
+    {"name": "防御強化薬", "type": "boost", "effect": "df", "value": 3, "description": "防御力が3上昇する"},
+    {"name": "資金回収魔道具", "type": "gold", "value": 200, "description": "資金を200獲得する"},
+    {"name": "高級回復薬", "type": "heal", "value": 50, "description": "HPを50回復する"},
+]
 def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
     if os.path.exists(cell["image"]):
@@ -461,6 +467,23 @@ elif st.session_state.phase == "EXPLORE":
                             if choice == "装備獲得":
                                 st.session_state.phase = "SHOP"
                             if choice == "スキル獲得": c["atk"] += 2
+                            if choice == "アイテム獲得":
+                                item = random.choice(ITEM_POOL)
+                                st.success(f"宝箱を見つけた！中身は『{item['name']}』だった！")
+                                st.write(f"効果: {item['description']}")
+                                
+                                # アイテム効果の適用
+                                if item['type'] == "boost":
+                                    for c in st.session_state.party:
+                                        if item['effect'] == "atk": c['atk'] += item['value']
+                                        if item['effect'] == "df": c['df'] += item['value']
+                                elif item['type'] == "gold":
+                                    st.session_state.gold += item['value']
+                                elif item['type'] == "heal":
+                                    for c in st.session_state.party:
+                                        c["hp"] = min(c["max_hp"], c["hp"] + item['value'])
+                                
+                                st.button("確認して次へ") # クリックするとループを抜けてリロード
                         st.session_state.current_choices = generate_choices()
                     st.rerun()
     else:
