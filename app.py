@@ -589,13 +589,27 @@ elif st.session_state.phase == "SHOP":
                 st.rerun()
     else:
         st.write("所持品がありません")
-    for char in st.session_state.party:
-        with st.expander(f"{char['name']} の装備"):
-            # 武器スロット表示と入れ替え（ドロップダウン等）
-            for i in range(2):
-                st.write(f"武器スロット{i+1}: {char['weapon_slots'][i] or 'なし'}")
-            st.write(f"防具: {char['armor_slot'] or 'なし'}")
-            st.rerun()
+        # 3. 現在の装備状況の表示
+        st.subheader("現在のパーティー装備")
+        
+        # キャラクターごとの装備状況を表示
+        for char in st.session_state.party:
+            with st.expander(f"{char['name']} の装備状況"):
+                # 武器の表示
+                weapons = char.get("weapon_slots", [None, None])
+                for i, weapon in enumerate(weapons):
+                    w_name = weapon['name'] if weapon else "なし"
+                    st.write(f"武器スロット{i+1}: {w_name}")
+                
+                # 防具の表示
+                armor = char.get("armor_slot")
+                a_name = armor['name'] if armor else "なし"
+                st.write(f"防具: {a_name}")
+                
+                # 現在のステータス補正値も併せて表示すると親切
+                stats = get_total_stats(char)
+                st.caption(f"合計攻撃力: {stats['atk']} / 合計防御力: {stats['df']}")
+            
     if st.button("探索に戻る"):
         st.session_state.phase = "EXPLORE"
         st.rerun()
