@@ -94,7 +94,7 @@ SKILL_POOL = [
     {"skill": "絶対防壁の祈り", "duration": 3},
     {"skill": "マナ・ドレイン","duration": 2},
     {"skill": "弱点看破", "duration": 3},
-    {"skill": "運命の分断","duration": 2},
+    
 ]
 def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
@@ -301,12 +301,12 @@ def run_battle_turn():
             enemy["hp"] -= damage
             log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
             # 例：暗殺者レイジの「毒攻撃」
-            if char.get("skill") == "毒攻撃" and char.get("skill_duration", 0) > 0:
+            if char.get("skill") == "毒攻撃" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 enemy["hp"] -= 5 # 追加の継続ダメージ
                 log.append(f"🧪 毒による追加ダメージ！")
             # --- スキル処理分岐 ---
             # 1. 侍ムサシ：バックスタブ
-            elif char["skill"] == "バックスタブ" and random.random() < 0.3:
+            elif char["skill"] == "バックスタブ" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 # 敵の最後列を特定して攻撃
                 targets = [v for k, v in st.session_state.grid_enemy.items() if k.endswith(",0") and v]
                 if targets:
@@ -318,35 +318,35 @@ def run_battle_turn():
                     log.append(f"🗡️ ムサシのバックスタブ！位置を入れ替えた！")
             
             # 2. 狩人シルフ：ピアッシング・ショット
-            elif char["skill"] == "ピアッシング・ショット" and random.random() < 0.3:
+            elif char["skill"] == "ピアッシング・ショット" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 for e in st.session_state.grid_enemy.values():
                     if e and e["hp"] > 0: e["hp"] -= damage * 0.5
                 log.append(f"🏹 シルフの全体攻撃！")
     
             # 3. 竜騎士ジーク：貫通攻撃（同列の敵）
-            elif char["skill"] == "貫通攻撃" and random.random() < 0.3:
+            elif char["skill"] == "貫通攻撃" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 row_idx = pos.split(",")[0]
                 for e in get_row_enemies(row_idx):
                     e["hp"] -= damage
                 log.append(f"🐉 ジークの貫通攻撃！")
     
             # 4. 魔術師エルザ：連携攻撃
-            elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy:
+            elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy and char.get("skill_duration", 0) > 0 and random.random() < 0.3
                 last_attacked_enemy["hp"] -= damage * 0.8
                 log.append(f"✨ エルザの追撃！")
     
             # 5. 狂戦士バルド：吸収
-            elif char["skill"] == "吸収" and random.random() < 0.3:
+            elif char["skill"] == "吸収" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 last_attacked_enemy["hp"] -= damage
                 char["hp"] += char["atk"]
             # 1. 時空の加速 (攻撃力1.5倍)
             
-            elif char.get("skill") == "時空の加速" and random.random() < 0.3:
+            elif char.get("skill") == "時空の加速" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 atk_multiplier = 1.5
                 log.append(f"⚡ {char['name']} の時空加速で攻撃力が上昇！")
         
             # 2. 魂の共鳴 (HP均等化 - 簡易版)
-            elif char.get("skill") == "魂の共鳴" and random.random() < 0.3:
+            elif char.get("skill") == "魂の共鳴" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 total_hp = sum(c['hp'] for c in st.session_state.grid_ally.values() if c)
                 avg_hp = total_hp // len([c for c in st.session_state.grid_ally.values() if c])
                 for c in st.session_state.grid_ally.values():
@@ -354,7 +354,7 @@ def run_battle_turn():
                 log.append(f"🔗 {char['name']} の魂の共鳴でHPを分かち合った！")
         if enemy["hp"] <= 0:
             log.append(f"💥 {enemy['name']} を倒した！")
-            if char.get("skill") == "連鎖爆発" and char.get("skill_duration", 0) > 0:
+            if char.get("skill") == "連鎖爆発" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 for e in st.session_state.grid_enemy.values():
                     if e and e["hp"] > 0:
                         e["hp"] -= (damage // 2)
@@ -388,30 +388,56 @@ def run_battle_turn():
                 # (敵の攻撃計算直前)
                 enemy_atk = enemy["atk"]
                 for c in st.session_state.grid_ally.values():
-                    if c and c.get("skill") == "戦場の咆哮" and c.get("skill_duration", 0) > 0:
+                    if c and c.get("skill") == "戦場の咆哮" and c.get("skill_duration", 0) > 0 and random.random() < 0.3:
                         enemy_atk = int(enemy_atk * 0.7)
                         
                 # 5. 神速の回避術 (ダメージを0にする判定)
                 is_evaded = False
-                if char.get("skill") == "神速の回避術" and char.get("skill_duration", 0) > 0:
+                if char.get("skill") == "神速の回避術" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                     if random.random() < 0.3: # 30%で回避
                         is_evaded = True
                         log.append(f"💨 {char['name']} は神速で攻撃を回避した！")
-                        
-                if not is_evaded:
+                # 6. 憤怒の覚醒 (HP半分以下で攻撃力2倍)
+                if char.get("skill") == "憤怒の覚醒" and char["hp"] <= (char["max_hp"] / 2) and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
+                    damage = int(damage * 2)
+                    log.append(f"🔥 {char['name']} は憤怒により攻撃力が倍化した！")
+        
+                # 7. 絶対防壁の祈り (攻撃を受けた際に無効化する処理)
+                # ※これは敵の攻撃処理側の「if not is_evaded:」の直前でチェックする
+                # (敵の攻撃処理内)
+                is_protected = False
+                if char.get("skill") == "絶対防壁の祈り" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
+                    is_protected = True
+                    char["skill_duration"] -= 1 # 1回無効化したら効果消費
+                    log.append(f"🛡️ {char['name']} は絶対防壁で攻撃を無効化した！")
+                    
+                if not is_evaded and not is_protected:
                     damage = max(1, enemy_atk - stats["df"])
-                    if enemy.get("skill") == "鉄壁の構え" and enemy.get("skill_duration", 0) > 0:
+                    if enemy.get("skill") == "鉄壁の構え" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                         damage //= 2 # ダメージを半減
                         log.append(f"🛡️ 鉄壁の構えでダメージ軽減！")
                     # 物理反射の処理
-                    elif char["skill"] == "物理反射" and char.get("skill_duration", 0) > 0:
+                    elif char["skill"] == "物理反射" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                         reflect_dmg = damage // 2
                         enemy["hp"] -= reflect_dmg
                         log.append(f"🪞 ゴライアスの物理反射！{enemy['name']} に {reflect_dmg} ダメージ！")
                     char["hp"] -= damage
                     log.append(f"👹 {enemy['name']} が {char['name']} に {damage} ダメージ！")
+                # 8. マナ・ドレイン (与ダメの半分HP回復)
+                if char.get("skill") == "マナ_ドレイン" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
+                    heal_amount = damage // 2
+                    char["hp"] = min(char["max_hp"], char["hp"] + heal_amount)
+                    log.append(f"🩸 {char['name']} はマナ・ドレインで {heal_amount} 回復した！")
+        
+                # 9. 弱点看破 (防御力を無視)
+                if char.get("skill") == "弱点看破" and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
+                    damage = int(stats["atk"] * atk_multiplier) # df を引かない
+                    log.append(f"🎯 {char['name']} の弱点看破！防御を無視！")
+        
+                
                 if char["hp"] <= 0:
                     log.append(f"💀 {char['name']} が倒れた…")
+                    
     # 修正後：以下のように「if char:」で存在確認をします
     for char in st.session_state.grid_ally.values():
         if char:  # キャラクターが存在する場合のみ処理する
