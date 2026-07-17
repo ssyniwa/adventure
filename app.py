@@ -8,8 +8,8 @@ st.set_page_config(page_title="Streamlit Roguelike", layout="wide")
 # --- 1. データ定義 ---
 CHARACTER_POOL = {
     "ブロッカー": [
-        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 20, "role": "ブロッカー","skill": "鉄壁の構え", "skill_duration": 0, "image": "assets/altania.png", "weapon_slots": [None, None], "armor_slot": None},
-        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 25, "role": "ブロッカー","skill": "物理反射", "skill_duration": 0, "image": "assets/golaias.png", "weapon_slots": [None, None], "armor_slot": None}
+        {"name": "聖騎士アルタニア", "hp": 150, "atk": 10, "df": 15, "role": "ブロッカー","skill": "鉄壁の構え", "skill_duration": 0, "image": "assets/altania.png", "weapon_slots": [None, None], "armor_slot": None},
+        {"name": "鉄壁のゴライアス", "hp": 180, "atk": 8, "df": 17, "role": "ブロッカー","skill": "物理反射", "skill_duration": 0, "image": "assets/golaias.png", "weapon_slots": [None, None], "armor_slot": None}
     ],
     "アタッカー": [
         {"name": "魔術師エルザ", "hp": 80, "atk": 25, "df": 5, "role": "アタッカー","skill": "連携攻撃", "skill_duration": 0, "image": "assets/elsa.png", "weapon_slots": [None, None], "armor_slot": None},
