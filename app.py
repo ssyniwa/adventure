@@ -479,7 +479,7 @@ if st.session_state.phase == "CHARACTER_SELECT":
     with col3:
         healer = st.selectbox("ヒーラー (1人)", [c["name"] for c in CHARACTER_POOL["ヒーラー"]])
     # 選択したキャラをリスト化
-    selected_names = [blocker] + attacker + [healer]
+    selected_names = [blocker] + attackers + [healer]
     
     # --- ステータス表示エリアを追加 ---
     st.divider()
