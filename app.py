@@ -695,7 +695,8 @@ elif st.session_state.phase == "SHOP":
         st.rerun()
 elif st.session_state.phase == "ITEM_GET":
     st.title("🎁 アイテム獲得！")
-    st.session_state.item_received = random.choice(ITEM_POOL)
+    if st.session_state.item_received is None:
+        st.session_state.item_received = random.choice(ITEM_POOL)
     item = st.session_state.item_received
     
     if item:
@@ -719,7 +720,9 @@ elif st.session_state.phase == "ITEM_GET":
             st.rerun()
 elif st.session_state.phase == "SKILL_GET":
     st.title("✨ スキル継承の祭壇")
-    st.session_state.skill_candidate = random.choice(SKILL_POOL)
+    # まだ候補が決まっていなければ抽選する
+    if st.session_state.skill_candidate is None:
+        st.session_state.skill_candidate = random.choice(SKILL_POOL)
     candidate = st.session_state.skill_candidate
     
     st.subheader(f"発見したスキル: 『{candidate['skill']}』")
