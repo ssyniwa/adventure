@@ -85,16 +85,16 @@ ITEM_POOL = [
     {"name": "高級回復薬", "type": "heal", "value": 50, "description": "HPを50回復する"},
 ]
 SKILL_POOL = [
-    {"name": "時空の加速", "duration": 3},
-    {"name": "戦場の咆哮", "duration": 2},
-    {"name": "魂の共鳴", "duration": 3},
-    {"name": "連鎖爆発","duration": 2},
-    {"name": "神速の回避術", "duration": 3},
-    {"name": "憤怒の覚醒", "duration": 2},
-    {"name": "絶対防壁の祈り", "duration": 3},
-    {"name": "マナ・ドレイン","duration": 2},
-    {"name": "弱点看破", "duration": 3},
-    {"name": "運命の分断","duration": 2},
+    {"skill": "時空の加速", "duration": 3},
+    {"skill": "戦場の咆哮", "duration": 2},
+    {"skill": "魂の共鳴", "duration": 3},
+    {"skill": "連鎖爆発","duration": 2},
+    {"skill": "神速の回避術", "duration": 3},
+    {"skill": "憤怒の覚醒", "duration": 2},
+    {"skill": "絶対防壁の祈り", "duration": 3},
+    {"skill": "マナ・ドレイン","duration": 2},
+    {"skill": "弱点看破", "duration": 3},
+    {"skill": "運命の分断","duration": 2},
 ]
 def display_character_card(cell, is_ally):
     # 画像が存在すれば表示、なければダミーの箱を表示
@@ -722,7 +722,7 @@ elif st.session_state.phase == "SKILL_GET":
     st.session_state.skill_candidate = random.choice(SKILL_POOL)
     candidate = st.session_state.skill_candidate
     
-    st.subheader(f"発見したスキル: 『{candidate['name']}』")
+    st.subheader(f"発見したスキル: 『{candidate['skill']}』")
     st.write(f"持続: {candidate['duration']}ターン")
     
     st.write("---")
@@ -733,9 +733,9 @@ elif st.session_state.phase == "SKILL_GET":
         with col1:
             # keyをキャラ名と組み合わせてユニークにする
             if st.button(f"{char['name']} と交換", key=f"swap_{char['name']}"):
-                char['skill'] = candidate['name']
+                char['skill'] = candidate['skill']
                 char['skill_duration'] = 0 # リセット
-                st.success(f"{char['name']} はスキルを『{candidate['name']}』に変更した！")
+                st.success(f"{char['name']} はスキルを『{candidate['skill']}』に変更した！")
                 
                 st.session_state.skill_candidate = None
                 st.session_state.phase = "EXPLORE"
