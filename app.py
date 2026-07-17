@@ -478,7 +478,31 @@ if st.session_state.phase == "CHARACTER_SELECT":
         attackers = st.multiselect("アタッカー (2人選択)", [c["name"] for c in CHARACTER_POOL["アタッカー"]], max_selections=2)
     with col3:
         healer = st.selectbox("ヒーラー (1人)", [c["name"] for c in CHARACTER_POOL["ヒーラー"]])
+    # 選択したキャラをリスト化
+    selected_names = [blocker_name] + attacker_names + [healer_name]
+    
+    # --- ステータス表示エリアを追加 ---
+    st.divider()
+    st.subheader("📊 パーティー構成プレビュー")
+    
+    # 全てのキャラクターを検索して表示
+    all_chars = []
+    for role in CHARACTER_POOL.values():
+        all_chars.extend(role)
         
+    cols = st.columns(4)
+    for i, name in enumerate(selected_names):
+        char = next((c for c in all_chars if c["name"] == name), None)
+        if char and i < 4:
+            with cols[i]:
+                st.markdown(f"**{char['name']}**")
+                st.caption(f"Role: {char['role']}")
+                st.markdown(f"❤️ HP: {char['hp']}")
+                st.markdown(f"⚔️ ATK: {char['atk']}")
+                st.markdown(f"🛡️ DF: {char['df']}")
+                st.markdown(f"✨ Skill: {char['skill']}")
+    
+    st.divider()    
     if st.button("このパーティーで出発する"):
         if len(attackers) != 2:
             st.error("アタッカーは必ず2人選んでください！")
