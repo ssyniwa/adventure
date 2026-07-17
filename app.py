@@ -293,10 +293,11 @@ def run_battle_turn():
         alive_enemies = [k for k, v in st.session_state.grid_enemy.items() if v and v["hp"] > 0]
         if alive_enemies:
             target_pos = random.choice(alive_enemies)
+            atk_multiplier = 1.0
             enemy = st.session_state.grid_enemy[target_pos]
             last_attacked_enemy=enemy
             stats = get_total_stats(char)
-            damage = max(1, stats["atk"] - enemy["df"])
+            damage = int(max(1, (stats["atk"] * atk_multiplier) - enemy["df"]))
             enemy["hp"] -= damage
             log.append(f"⚔️ {char['name']} が {enemy['name']} に {damage} ダメージ！")
             # 例：暗殺者レイジの「毒攻撃」
@@ -338,9 +339,26 @@ def run_battle_turn():
             elif char["skill"] == "吸収" and random.random() < 0.3:
                 last_attacked_enemy["hp"] -= damage
                 char["hp"] += char["atk"]
+            # 1. 時空の加速 (攻撃力1.5倍)
             
+            elif char.get("skill") == "時空の加速" and random.random() < 0.3:
+                atk_multiplier = 1.5
+                log.append(f"⚡ {char['name']} の時空加速で攻撃力が上昇！")
+        
+            # 2. 魂の共鳴 (HP均等化 - 簡易版)
+            elif char.get("skill") == "魂の共鳴" and random.random() < 0.3:
+                total_hp = sum(c['hp'] for c in st.session_state.grid_ally.values() if c)
+                avg_hp = total_hp // len([c for c in st.session_state.grid_ally.values() if c])
+                for c in st.session_state.grid_ally.values():
+                    if c: c['hp'] = avg_hp
+                log.append(f"🔗 {char['name']} の魂の共鳴でHPを分かち合った！")
         if enemy["hp"] <= 0:
             log.append(f"💥 {enemy['name']} を倒した！")
+            if char.get("skill") == "連鎖爆発" and char.get("skill_duration", 0) > 0:
+                for e in st.session_state.grid_enemy.values():
+                    if e and e["hp"] > 0:
+                        e["hp"] -= (damage // 2)
+                        log.append(f"🔥 連鎖爆発が周囲の敵にダメージ！")
         # 次のターンのためにフラグをリセット
         if char["role"] == "ヒーラー":
             char["did_act"] = False
@@ -366,17 +384,32 @@ def run_battle_turn():
                 
                 char = st.session_state.grid_ally[target_pos]
                 stats = get_total_stats(char)
-                damage = max(1, enemy["atk"] - stats["df"])
-                if enemy.get("skill") == "鉄壁の構え" and enemy.get("skill_duration", 0) > 0:
-                    damage //= 2 # ダメージを半減
-                    log.append(f"🛡️ 鉄壁の構えでダメージ軽減！")
-                # 物理反射の処理
-                elif char["skill"] == "物理反射" and char.get("skill_duration", 0) > 0:
-                    reflect_dmg = damage // 2
-                    enemy["hp"] -= reflect_dmg
-                    log.append(f"🪞 ゴライアスの物理反射！{enemy['name']} に {reflect_dmg} ダメージ！")
-                char["hp"] -= damage
-                log.append(f"👹 {enemy['name']} が {char['name']} に {damage} ダメージ！")
+                # 4. 戦場の咆哮 (敵の攻撃力ダウン)
+                # (敵の攻撃計算直前)
+                enemy_atk = enemy["atk"]
+                for c in st.session_state.grid_ally.values():
+                    if c and c.get("skill") == "戦場の咆哮" and c.get("skill_duration", 0) > 0:
+                        enemy_atk = int(enemy_atk * 0.7)
+                        
+                # 5. 神速の回避術 (ダメージを0にする判定)
+                is_evaded = False
+                if char.get("skill") == "神速の回避術" and char.get("skill_duration", 0) > 0:
+                    if random.random() < 0.3: # 30%で回避
+                        is_evaded = True
+                        log.append(f"💨 {char['name']} は神速で攻撃を回避した！")
+                        
+                if not is_evaded:
+                    damage = max(1, enemy_atk - stats["df"])
+                    if enemy.get("skill") == "鉄壁の構え" and enemy.get("skill_duration", 0) > 0:
+                        damage //= 2 # ダメージを半減
+                        log.append(f"🛡️ 鉄壁の構えでダメージ軽減！")
+                    # 物理反射の処理
+                    elif char["skill"] == "物理反射" and char.get("skill_duration", 0) > 0:
+                        reflect_dmg = damage // 2
+                        enemy["hp"] -= reflect_dmg
+                        log.append(f"🪞 ゴライアスの物理反射！{enemy['name']} に {reflect_dmg} ダメージ！")
+                    char["hp"] -= damage
+                    log.append(f"👹 {enemy['name']} が {char['name']} に {damage} ダメージ！")
                 if char["hp"] <= 0:
                     log.append(f"💀 {char['name']} が倒れた…")
     # 修正後：以下のように「if char:」で存在確認をします
