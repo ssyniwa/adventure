@@ -331,7 +331,7 @@ def run_battle_turn():
                 log.append(f"🐉 ジークの貫通攻撃！")
     
             # 4. 魔術師エルザ：連携攻撃
-            elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy and char.get("skill_duration", 0) > 0 and random.random() < 0.3
+            elif char["skill"] == "連携攻撃（シナジー）" and last_attacked_enemy and char.get("skill_duration", 0) > 0 and random.random() < 0.3:
                 last_attacked_enemy["hp"] -= damage * 0.8
                 log.append(f"✨ エルザの追撃！")
     
