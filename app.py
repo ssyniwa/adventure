@@ -85,15 +85,15 @@ ITEM_POOL = [
     {"name": "高級回復薬", "type": "heal", "value": 50, "description": "HPを50回復する"},
 ]
 SKILL_POOL = [
-    {"skill": "時空の加速", "duration": 3},
+    {"skill": "時空の加速", "duration": 2},
     {"skill": "戦場の咆哮", "duration": 2},
-    {"skill": "魂の共鳴", "duration": 3},
+    {"skill": "魂の共鳴", "duration": 2},
     {"skill": "連鎖爆発","duration": 2},
-    {"skill": "神速の回避術", "duration": 3},
+    {"skill": "神速の回避術", "duration": 2},
     {"skill": "憤怒の覚醒", "duration": 2},
-    {"skill": "絶対防壁の祈り", "duration": 3},
+    {"skill": "絶対防壁の祈り", "duration": 2},
     {"skill": "マナ・ドレイン","duration": 2},
-    {"skill": "弱点看破", "duration": 3},
+    {"skill": "弱点看破", "duration": 2},
     
 ]
 def display_character_card(cell, is_ally):
